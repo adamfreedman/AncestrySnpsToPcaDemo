@@ -225,3 +225,51 @@ pca_plot <- pca_tibble %>% ggplot(aes(x=PC1,y=PC2,color=dog_name,label=dog_name)
 Which produces this:
 
 <img src="img/dogs_pca_2025.05.07.png" width="100%" height="100%"/>
+
+### How does my dog relate to dingoes and wolves?
+There has been extensive work on dog breeds and their geographic origins ... some are seen as more "ancient", having arisen earlier in dog history, dogs like Salukis and Basenjis for instance. Most dog breeds have actually arisen in the last few hundred years ... most being not all. As you will see in a PCA of your dogs and wolves, someone else's dog don't look like everyone else's regarding their ancestry ...
+
+#### Merging class dog vcf and other canids
+We need to merge the vcf files together in order to generate a PCA of all of them at once. Since we have already dealt with the reference allele correction this is pretty straightforward.
+
+We only want the positions that are in the class dogs, so first we create a list of regions to keep in the merge:
+
+```bash
+gunzip -c recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz |grep -v "#" |awk '{print $1"\t"$2}' > classdata_regions_file.txt
+```
+
+Then, we can do the merge with a vcf file from *Freedman et al. 2014, *PLoS Genetics*, for the two dogs, 3 wolves and one golden jackal from that study, that has already been compressed with bgzip. 
+
+```bash
+bcftools merge --regions-file classdata_regions_file.txt recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz Freedman_etal_2014_PLoSGenet_6canids.vcf.gz -O z -o classdata_Freedmandata_merged.vcf.gz
+```
+
+#### PCA plot of merged canids
+Now, we can do a PCA to examine relationships between your dogs and other breed samples, and wolves ...
+
+```r
+dogs_wolves_vcf <- read.vcfR("classdata_Freedmandata_merged.vcf.gz")
+dogs_wolves_vcf_biallelic <- dogs_wolves_vcf[is.biallelic(dogs_wolves_vcf) & !is.indel(dogs_wolves_vcf), ]
+dogs_wolves_adegenet <- vcfR2genind(dogs_wolves_vcf_biallelic)
+# replace missing values based upon mean allele frequency
+dogs_wolves_impute <- scaleGen(dogs_wolves_adegenet, NA.method = "mean")  
+pca_result <- prcomp(dogs_wolves_impute, center = TRUE, scale. = FALSE)
+pca_tibble <- as_tibble(pca_result$x) %>%
+    mutate(sample_name=row.names(pca_result$x))
+
+sample_type<-c(rep("class dog",13),"Basenji","Dingo","Israeli wolf","Croatian wolf","Chinese wolf","Golden jackal")
+pca_tibble <-pca_tibble %>% mutate(sample_type=sample_type)
+pca_tibble <- pca_tibble %>% mutate(sample_type=factor(sample_type,levels=c("class dog","Basenji","Dingo","Israeli wolf","Croatian wolf","Chinese wolf","Golden jackal")))
+sample_labels<-c("class dog","Basenji","Dingo","Israeli wolf","Croatian wolf","Chinese wolf","Golden jackal")
+merged_pca_plot <- pca_tibble %>% ggplot(aes(x=PC1,y=PC2,color=sample_type,label=sample_name)) +
+            geom_point(size=3) +
+            scale_color_manual(labels=sample_labels,values=c("darkblue", "purple","magenta", "firebrick","red","orange","yellow3")) + 
+            geom_text_repel(aes(label=sample_name),size=3,show.legend = FALSE) +
+            xlab("PC1") +
+            ylab("PC2") +
+            guides(color = guide_legend(title = "Sample type"))
+``` 
+
+...which produces:
+
+<img src="img/dogs_Freedmandanids_pca_2025.05.07.png" width="100%" height="100%"/>
