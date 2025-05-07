@@ -58,6 +58,9 @@ plink --bfile Bambino_binary --chr-set 82 --merge-list merge_list.txt --make-bed
 
 <img src="img/vcf.png" width="100%" height="100%"/>
 
+
+A few things to notice about vcf format. First, each row contains a REF and and an ALT allele. The REF allele is, not surprisingly the reference allele. For genotyping based off of aligning sequencing reads to a reference genome, the REF allele is the nucleotide observed at that position in the genome, which is typically represented in a haploid form, i.e. there is only one base. Second, the genotypes are reprsented by number combinations, with 0 denoting the REF allele and increasing integers referencing ALT alleles, which are listed in the ALT fields. It is entirely possible to have more than one alternative allele. So, if your REF allele is A, you have two alternative alleles, C and G, and a set of samples have the genotypes A/A,A/C, and A/G, they would be represented in the vcf file as 0/0, 0/1, and 1/2. If no genotype was called for a sample at a particular site, it will be represented as ./..
+
 ### Replace SNP chip ids with sample names in vcf file
 SNP array chips such as those used by Ancestry have a unique chip ID. Unofortunately, that is the information in the original PLINK files treated as the sample name. Of course, that doesn't really help us in seeing what dogs share more genetic similarity, or their genetic distance from wild canids. I had to write a rather ugly one-liner to write a file that maps the array id to the dog names.
 
@@ -93,3 +96,29 @@ bcftools view -i 'POS>0' -Oz -o nounknown_namesfixed_dogs_merged.vcf.gz namesfix
 ```
 
 where the first command line argument follows ther `-o` which means "name of the output file without chromosome 0", and the last argument is our input file.
+
+
+#### Remove multi-allelic sites
+Mult-allelic sites are often enriched for erroneous genotypes, with such errors arising from a number of factors, including local structural variation, and a particular genotyping algorithm incorrectly mistaking sequencing errors as alternative alleles. Furthermore, some downstream data analysis tools assume that sites are bi-allelic, i.e. having only two alleles. A similar logic can be applied to variants that are not simple nucleotide substitutions, such as an A for a G. Insertions and deletions, aka "indels" are cases where a sample has extra nucleotides inserted, or bases in the reference genome assembly that are missing. Indels are much harder to call correctly, and they are typically not the type of variant that is expected by downstream tools. Thus, it is normally useful to filter them out. 
+
+We can remove multi-allelic and indel sites with *bcftools* as follows:
+
+```bash
+bcftools view -m2 -M2 -v snps nounknown_namesfixed_dogs_merged.vcf.gz -Oz -o dogs_biallelic_snps.merged.vcf.gz
+```
+
+#### Removing SNPs on unordered scaffolds
+Genome assemblies are comprised of scaffolds,which are comprised of shorter sequences called contigs that are glued together in an inferred order. In most cases, there are a bunch of contigs that cannot be unambiguously scaffolded. As a result, they get dumped into a fake chromosomes, usually named "Un", which is created by concatenating all of the contigs that couldn't be scaffolded. There are also scaffolds that are not chromosome scale and often have longer alphanumeric names, rather than single digits such as 1 or "chr1" for chromosome 1. It is harder to assess the quality of the contig assemblies on Un, and any variants detected in them cannot be placed into any useful genomic context: we don't know fif they actually belong on a chromosome, and how far they are to other called variants, and we certainly can't tell if they are near any genes, so they don't really have any use for downstream functional analyses. Therefore, we can remove variants from Un:
+
+```bash
+gunzip -c dogs_biallelic_snps.merged.vcf.gz |grep -v Un > noUn_dogs_biallelic_snps.merged.vcf
+```
+
+Alternatively, you could use *bcftools* to create a list of valid chromosomes, and then use it to only keep things on that list:
+
+```bash
+bcftools query -f '%CHROM\n' dogs_biallelic_snps.merged.vcf.gz | grep -v Un | sort -u > valid_chroms.txt
+bcftools view -R valid_chroms.txt dogs_biallelic_snps.merged.vcf.gz  -o noUn_dogs_biallelic_snps.merged.vcf.gz
+
+bgzip noUn_dogs_biallelic_snps.merged.vcf
+``` 
