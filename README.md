@@ -56,6 +56,6 @@ plink --bfile Bambino_binary --chr-set 82 --merge-list merge_list.txt --make-bed
 [vcf](https://gatk.broadinstitute.org/hc/en-us/articles/360035531692-VCF-Variant-Call-Format) format is the standard format for representing genotypes calculated using genome sequencing data, whether that be whole-genome sequencing or some form of "reduced representation" , such as when sequencing is done for targed regions of a genome, e.g. protein-coding genes. It contains a number of header fields that are "commented out" with "#" characters, that typically describe the chromosomes names in the file, and what various codes mean. The data part of the file describes which variants are observed and in which samples at a given genomic position, e.g.:
 
 
-<img src="img/vcf.png" width="75%" height="75%"/>
+<img src="img/vcf.png" width="100%" height="100%"/>
 
 
