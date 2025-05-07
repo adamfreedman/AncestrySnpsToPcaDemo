@@ -120,4 +120,68 @@ Also, we need to bgzip the output:
 bgzip noUn_dogs_biallelic_snps.merged.vcf
 ``` 
 
+#### Removing ambiguously named chromosomes
+CanFam3.1 has 38 autosomes, an X, and and MT chromosome. But, the genotyping array has no X, but a 39,40 and 42 ... weird. 39 has a length
+that is suspciously close to that of the X. But, we can't use the X for population structure because not all of the dogs are females, i.e. by
+definition males will only have 0/0 or 1/1. No bueno. The others may or may not be larger scaffolds that have been named. So, we are going to dump them
 
+```bash
+bcftools view --targets ^39,40,42 noUn_dogs_biallelic_snps.merged.vcf.gz -O z -o chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
+bcftools index chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
+```
+
+### Looking for variation in genes of interest.
+In our paper looking at signals of positive selection on the dog genome that took place early in domestication, [Freedman et al, 2016 PLoS Genetics](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1005851), one of the genes near the strongest signal was nocturnin, CCRN4L, a gene that plays an important role in lipid metabolism. We can use *bcftools* to see if any of our SNPs overlaps this genic region, which we'll expand by adding 20kb to either side of it:
+
+```bash
+bcftools view -r 19:3568695-3629307 chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz -o nocturnin_20kbbuffer_classdogs.vcf
+```
+
+**WAIT!!**. Something weird is happening. There appear to be more than one site with the same genomic coordinates:
+
+```bash
+19	3573889	AX-167376129	T	G	.	.	PR	GT	0/0	./.	./.	./.	0/0	0/1	./.	./.	0/0	0/0	./.	0/1	0/1
+19	3573889	AX-168184528	T	G	.	.	PR	GT	./.	0/0	0/0	0/1	./.	./.	./.	0/0	./.	./.	0/0	./.	./.
+19	3590517	AX-168283112	C	G	.	.	PR	GT	0/1	0/0	0/0	0/1	0/0	0/0	0/1	0/1	0/1	0/0	0/0	0/0	0/0
+19	3610008	AX-167838398	G	A	.	.	PR	GT	0/0	0/0	0/1	0/0	0/1	0/1	0/1	0/1	0/0	1/1	0/0	0/1	0/1
+19	3614797	AX-168252513	C	T	.	.	PR	GT	0/0	0/0	0/0	0/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/0
+19	3619534	AX-168005459	C	T	.	.	PR	GT	0/0	0/0	0/1	0/0	0/1	0/1	0/1	0/1	0/0	1/1	0/0	0/1	0/1```
+
+Unfortunately, PLINK has a problem in that without unambiguous reference allele information, it may guess, and also may split some multi-allelic records into multiple lines. So, we need to deal with that. First, we will create an updated merged vcf file that has the correct reference allele (this will also be needed to merge with genome-sequencing derived genotypes of other canids later on).
+
+```bash
+bcftools norm --check-ref ws --fasta-ref headerfix_Canis_lupus_familiaris.CanFam3.1.dna_sm.toplevel.fa \ 
+    chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz -O z -o \ 
+    refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz > correct.log 2>&1
+``` 
+
+Then, we collapse the multi-line occurrences of a single position into a multi-allelic sites:
+
+```bash
+bcftools norm -m +any refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz -o collapse2multi_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
+```
+The output to the screen is:
+```bash
+Lines   total/split/joined/realigned/removed/skipped:	584627/0/4837/0/0/0
+```
+indicating that 4837 lines have been joined into multi-allelic sites.
+
+Now ... let's index the new genotype file, remove the new multi-allelic sites,  and try to look at nocturnin again!
+
+```bash
+bcftools view -m2 -M2 -v snps collapse2multi_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz -Oz -o recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
+bcftools index recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
+bcftools view -r 19:3568695-3629307 recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz -o nocturnin_20kbbuffer_classdogs.vcf
+```
+and .. lo and behold ...
+```bash
+cat nocturnin_20kbbuffer_classdogs.vcf
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	leo	dice	Luna	Bambino	PeppersSisterAbby	Logan	Pebbles	Marisol	Mickey	milly	Pepper	doom	Edna
+19	3573889	AX-167376129;AX-168184528	T	G	.	.	PR	GT	0/0	0/0	0/0	0/1	0/0	0/1	./.	0/0	0/0	0/0	0/0	0/1	0/1
+19	3590517	AX-168283112	C	G	.	.	PR	GT	0/1	0/0	0/0	0/1	0/0	0/0	0/1	0/1	0/1	0/0	0/0	0/0	0/0
+19	3610008	AX-167838398	G	A	.	.	PR	GT	0/0	0/0	0/1	0/0	0/1	0/1	0/1	0/1	0/0	1/1	0/0	0/1	0/1
+19	3614797	AX-168252513	C	T	.	.	PR	GT	0/0	0/0	0/0	0/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/0
+19	3619534	AX-168005459	C	T	.	.	PR	GT	0/0	0/0	0/1	0/0	0/1	0/1	0/1	0/1	0/0	1/1	0/0	0/1	0/1
+```
+
+What we also see, is that the SNP at position 3573889 had the same two alleles (see above) and had the same genotypes but somehow they got split ... PLINK thing ... Ancestry pipeline issue? Who knows? The good news ... we now have very clean data!!
