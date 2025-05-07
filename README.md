@@ -272,4 +272,4 @@ merged_pca_plot <- pca_tibble %>% ggplot(aes(x=PC1,y=PC2,color=sample_type,label
 
 ...which produces:
 
-<img src="img/dogs_Freedmandanids_pca_2025.05.07.png" width="75%" height="75%"/>
+<img src="img/dogs_Freedmandanids_pca_2025.05.07.png" width="100%" height="100%"/>
