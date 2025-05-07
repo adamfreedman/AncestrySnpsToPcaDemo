@@ -84,3 +84,12 @@ bgzip namesfixed_dogs_merged.vcf
 ```
 
 **NOTE**: For those of you familiar with *gzip*, gzipping a file is NOT the same as zipping it with *bgzip*!
+
+#### Remove variants with "unknown value"
+This is a rather surreal feature of PLINK format, and of genotyping arrays as well. It is possible to genotype a site for which the genommic position is unknown. PLINK format stores these in chromosome "0". I am extremely wary of sites that can't be ascribed to a known genomic position, and so it is best to filter them out. *bcftools* has a very straightforward way of doing this:
+
+```bash
+bcftools view -i 'POS>0' -Oz -o nounknown_namesfixed_dogs_merged.vcf.gz namesfixed_dogs_merged.vcf.gz
+```
+
+where the first command line argument follows ther `-o` which means "name of the output file without chromosome 0", and the last argument is our input file.
