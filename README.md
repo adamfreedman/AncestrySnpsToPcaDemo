@@ -149,6 +149,14 @@ bcftools view -r 19:3568695-3629307 chrfiltered_noUn_dogs_biallelic_snps.merged.
 
 Unfortunately, PLINK has a problem in that without unambiguous reference allele information, it may guess, and also may split some multi-allelic records into multiple lines. So, we need to deal with that. First, we will create an updated merged vcf file that has the correct reference allele (this will also be needed to merge with genome-sequencing derived genotypes of other canids later on).
 
+First, we need to index the genome, this time with [samtool](http://www.htslib.org/). I know ... use *samtools* so you can do something with *bcftools*? What can I say, it's bioinformatics ... if there is a way to make things overly complicated ... that will be the way it is done ...
+
+```bash
+samtools faidx Canis_lupus_familiaris.CanFam3.1.dna_sm.toplevel.fa
+```
+
+The correct the reference allele in the vcf file to match what is in the genome
+
 ```bash
 bcftools norm --check-ref ws --fasta-ref headerfix_Canis_lupus_familiaris.CanFam3.1.dna_sm.toplevel.fa \ 
     chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz -O z -o \ 
