@@ -58,4 +58,29 @@ plink --bfile Bambino_binary --chr-set 82 --merge-list merge_list.txt --make-bed
 
 <img src="img/vcf.png" width="100%" height="100%"/>
 
+### Replace SNP chip ids with sample names in vcf file
+SNP array chips such as those used by Ancestry have a unique chip ID. Unofortunately, that is the information in the original PLINK files treated as the sample name. Of course, that doesn't really help us in seeing what dogs share more genetic similarity, or their genetic distance from wild canids. I had to write a rather ugly one-liner to write a file that maps the array id to the dog names.
 
+```bash
+for i in *ped;do j=`head -1 $i |awk '{print $1"_"$2}'`; echo $i,$j |sed 's/.ped//' |sed 's/data//'| sed 's/a_31230811903758/a/' |sed 's/m_31230710411425/m/' >> name_to_array_id.txt;done
+```
+
+**NOTE**: this one-liners is not universally applicable to other arbitrary sets of dog samples--I was using a set of 13 of your dogs' genotypes, and there was some idiosyncratic naming that required I write the nonsense above. In prindiple, thre is probably a cleaner, more generalizable way of doing that, which I will try and add soon in case you want to revisit this whole workflow example
+
+Anyway, I also wrote a short python script that takes the merged vcf file, and then replaces the array ids with the dogs names. It gets run very simply as:
+
+
+```bash
+python WriteNamesToVcf.py 
+```
+
+which produces namesfixed_dogs_merged.vcf, the vcf with dog names.
+
+#### Compressing the merged dog vcf file
+Downstream manipulations, filtering, and analysis of the merged vcf file will require access to particular sets of fields with a software package called [bcftools](). *bcftools* can do useful things like extracting the genotypes in a particular genomic region (or for a particular genomic position. However, we need to compress the vcf file with another tool that comes bundles with *bcftools*, called *bgzip*
+
+```bash
+bgzip namesfixed_dogs_merged.vcf
+```
+
+**NOTE**: For those of you familiar with *gzip*, gzipping a file is NOT the same as zipping it with *bgzip*!
