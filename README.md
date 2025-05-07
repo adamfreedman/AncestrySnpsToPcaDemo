@@ -113,12 +113,11 @@ Genome assemblies are comprised of scaffolds,which are comprised of shorter sequ
 ```bash
 gunzip -c dogs_biallelic_snps.merged.vcf.gz |grep -v Un > noUn_dogs_biallelic_snps.merged.vcf
 ```
+This command line removes lines with Un in them, not just genotype data lines but comments in the header that reference Un scaffolds.
 
-Alternatively, you could use *bcftools* to create a list of valid chromosomes, and then use it to only keep things on that list:
-
+Also, we need to bgzip the output:
 ```bash
-bcftools query -f '%CHROM\n' dogs_biallelic_snps.merged.vcf.gz | grep -v Un | sort -u > valid_chroms.txt
-bcftools view -R valid_chroms.txt dogs_biallelic_snps.merged.vcf.gz  -o noUn_dogs_biallelic_snps.merged.vcf.gz
-
 bgzip noUn_dogs_biallelic_snps.merged.vcf
 ``` 
+
+
