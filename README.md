@@ -185,3 +185,35 @@ cat nocturnin_20kbbuffer_classdogs.vcf
 ```
 
 What we also see, is that the SNP at position 3573889 had the same two alleles (see above) and had the same genotypes but somehow they got split ... PLINK thing ... Ancestry pipeline issue? Who knows? The good news ... we now have very clean data!!
+
+### visualizing genetic structure among your dogs: PCA
+Principal components analysis (PCA) has a long history of use in quantifying and visualizing population structure. There has been much debate over what the observed patterns mean, and what underlying evolutionary processes produce them. Needless to say, PCA can be a reasonable good first peek.
+
+I typically use [R](https://www.r-project.org/) for making figure, as well as doing a bunch of data crunching when it is enabled by built-in R packages. To make a PCA, you can do something like this, assuming you are somewhat familiar with R and know how to install packages:
+
+```r
+library(vcfR)
+library(adegenet)
+library(ggrepel)
+library(tidyverse)
+setwd("/Users/adamfreedman/Dropbox/seminar_talks/CUNY/")
+
+## dogs only pca
+dogs_vcf <- read.vcfR("recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz")
+dogs_adegenet <- vcfR2genind(dogs_vcf)
+# replace missing values based upon mean allele frequency
+dogs_impute <- scaleGen(dogs_adegenet, NA.method = "mean")  
+pca_result <- prcomp(dogs_impute, center = TRUE, scale. = FALSE)
+pca_tibble <- as_tibble(pca_result$x) %>%
+  mutate(dog_name=row.names(pca_result$x))
+
+pca_plot <- pca_tibble %>% ggplot(aes(x=PC1,y=PC2,color=dog_name,label=dog_name)) +
+  geom_point(size=3,alpha=0.6) +
+  xlab("PC1") +
+  ylab("PC2") +
+  geom_text_repel(aes(label=dog_name),size=3,show.legend = FALSE) +
+  guides(color = guide_legend(title = "Dog name"))
+```
+Which produces this:
+
+<img src="img/dogs_pca_2025.05.07.png" width="100%" height="100%"/>
