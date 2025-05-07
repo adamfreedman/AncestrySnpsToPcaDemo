@@ -1,0 +1,30 @@
+PLINK v1.9.0-b.8 64-bit (22 Oct 2024)
+Options in effect:
+  --allow-extra-chr
+  --bfile dogs_merged
+  --chr-set 82
+  --out dogs_merged_vcf
+  --recode vcf
+
+Hostname: HUIT-FAS-huitadmins-MacBook-Pro
+Working directory: /Users/adamfreedman/Dropbox/seminar_talks/CUNY/Class_data
+Start time: Thu Apr 17 14:19:23 2025
+
+Random number seed: 1744913963
+18432 MB RAM detected; reserving 9216 MB for main workspace.
+725308 variants loaded from .bim file.
+13 samples (0 males, 0 females, 13 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to dogs_merged_vcf.nosex .
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 13 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.97336.
+725308 variants and 13 samples pass filters and QC.
+Note: No phenotypes present.
+--recode vcf to dogs_merged_vcf.vcf ... done.
+Warning: At least one VCF allele code violates the official specification;
+other tools may not accept the file.  (Valid codes must either start with a
+'<', only contain characters in {A,C,G,T,N,a,c,g,t,n}, be an isolated '*', or
+represent a breakend.)
+
+End time: Thu Apr 17 14:19:23 2025
