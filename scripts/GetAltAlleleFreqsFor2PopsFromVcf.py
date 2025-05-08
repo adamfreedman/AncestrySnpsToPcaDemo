@@ -1,5 +1,6 @@
 import argparse
 from numpy import mean
+from scipy.stats import pearsonr
 
 def get_alt_allele_freq(ids,snpline,pop1,pop2):
     snplist = snpline.strip().split()
@@ -53,6 +54,8 @@ if __name__=="__main__":
     
     pop1_frq_list = []
     pop2_frq_list = []
+    pop1_frq_avail = []
+    pop2_frq_avail = []
     vcfin = open(opts.vcf,'r') 
     for line in vcfin:
         if line[0] == '#' and 'CHROM' in line:
@@ -64,10 +67,13 @@ if __name__=="__main__":
                 pop1_frq_list.append(pop1frq)
             if pop2frq != 'NA':
                 pop2_frq_list.append(pop2frq)
-
+            if pop1frq != 'NA' and pop2frq != 'NA':
+                pop1_frq_avail.append(pop1frq)
+                pop2_frq_avail.append(pop2frq)
     fout.close()
 
     print('number of observable pop1 alt freqs = {}'.format(len(pop1_frq_list)))
     print('mean pop1 alt frq = {}\n'.format(mean(pop1_frq_list)))
     print('number of observable pop2 alt freqs = {}'.format(len(pop2_frq_list)))
-    print('mean pop2 alt frq = {}\n'.format(mean(pop2_frq_list)))        
+    print('mean pop2 alt frq = {}\n'.format(mean(pop2_frq_list)))
+    print('allele frequency correlation between callable sites = {}\n'.format(pearsonr(pop1_frq_avail,pop2_frq_avail)))
