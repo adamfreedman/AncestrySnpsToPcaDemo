@@ -168,6 +168,7 @@ bcftools view -r 19:3568695-3629307 chrfiltered_noUn_dogs_biallelic_snps.merged.
 19	3610008	AX-167838398	G	A	.	.	PR	GT	0/0	0/0	0/1	0/0	0/1	0/1	0/1	0/1	0/0	1/1	0/0	0/1	0/1
 19	3614797	AX-168252513	C	T	.	.	PR	GT	0/0	0/0	0/0	0/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/0
 19	3619534	AX-168005459	C	T	.	.	PR	GT	0/0	0/0	0/1	0/0	0/1	0/1	0/1	0/1	0/0	1/1	0/0	0/1	0/1```
+```
 
 Unfortunately, PLINK has a problem in that without unambiguous reference allele information, it may guess, and also may split some multi-allelic records into multiple lines. So, we need to deal with that. First, we will create an updated merged vcf file that has the correct reference allele (this will also be needed to merge with genome-sequencing derived genotypes of other canids later on).
 
