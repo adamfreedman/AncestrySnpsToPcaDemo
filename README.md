@@ -103,6 +103,12 @@ This is a rather surreal feature of PLINK format, and of genotyping arrays as we
 bcftools view -i 'POS>0' -Oz -o nounknown_namesfixed_dogs_merged.vcf.gz namesfixed_dogs_merged.vcf.gz
 ```
 
+* `view` is a module for reading the file
+* `-i` means include all records that pass filtering criteria
+* `'-POS>0'` instructs bcftools to only include entires with a position >0; variants where chromosome is unknown (i.e. 0) also have a position of 0
+* `-Oz` tells bcftools to output the results in bgzip-compressed format
+* `-o` specifies the output file name
+* the final argument is the input file name
 where the first command line argument follows ther `-o` which means "name of the output file without chromosome 0", and the last argument is our input file.
 
 
