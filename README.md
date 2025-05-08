@@ -149,6 +149,9 @@ bcftools view --targets ^39,40,42 noUn_dogs_biallelic_snps.merged.vcf.gz -O z -o
 bcftools index chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
 ```
 
+* `targets ^39,40,42` tells bcftools to exlude SNPS on those chromosomes, the `^` means "not". If you remove it then you would only retain SNPs on those chromosomes
+* as you might guess, you don't need to put a space between `-O` and `z` (we didn't in the last command), it's up to you which you think is more readable ... but .. in a long command line, the spaces can help you track down mistakes
+
 ### Looking for variation in genes of interest.
 In our paper looking at signals of positive selection on the dog genome that took place early in domestication, [Freedman et al, 2016 PLoS Genetics](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1005851), one of the genes near the strongest signal was nocturnin, CCRN4L, a gene that plays an important role in lipid metabolism. We can use *bcftools* to see if any of our SNPs overlaps this genic region, which we'll expand by adding 20kb to either side of it:
 
