@@ -120,6 +120,11 @@ We can remove multi-allelic and indel sites with *bcftools* as follows:
 ```bash
 bcftools view -m2 -M2 -v snps nounknown_namesfixed_dogs_merged.vcf.gz -Oz -o dogs_biallelic_snps.merged.vcf.gz
 ```
+* `-m2 -M2` tells bcftools to only keep sites with a minimum and maximum of 2 alleles
+* `-v snps` indicates to only keep single nucleotide polymorphisms (SNPs), excluding insertions, deletions, and other structural variants
+
+These commands produce an output file consisting solely of bi-allelic SNPs.
+
 
 #### Removing SNPs on unordered scaffolds
 Genome assemblies are comprised of scaffolds,which are comprised of shorter sequences called contigs that are glued together in an inferred order. In most cases, there are a bunch of contigs that cannot be unambiguously scaffolded. As a result, they get dumped into a fake chromosomes, usually named "Un", which is created by concatenating all of the contigs that couldn't be scaffolded. There are also scaffolds that are not chromosome scale and often have longer alphanumeric names, rather than single digits such as 1 or "chr1" for chromosome 1. It is harder to assess the quality of the contig assemblies on Un, and any variants detected in them cannot be placed into any useful genomic context: we don't know fif they actually belong on a chromosome, and how far they are to other called variants, and we certainly can't tell if they are near any genes, so they don't really have any use for downstream functional analyses. Therefore, we can remove variants from Un:
