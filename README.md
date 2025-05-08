@@ -296,3 +296,60 @@ merged_pca_plot <- pca_tibble %>% ggplot(aes(x=PC1,y=PC2,color=sample_type,label
 ...which produces:
 
 <img src="img/dogs_Freedmandanids_pca_2025.05.07.png" width="100%" height="100%"/>
+
+### Extracting allele frequencies at interesting genes
+A useful way of examining genetic variation between two populations is to look at their respective allele frequencies in genic regions thought to be resposible for phenotypic trait differences. The gene MITF plays an important role in the melanin pigmentation pathway, so we first could extract a vcf file for that region. In the *data* directory of this repository,dog_genecoordinates_table_CamFam3.1.txt, that lists the genomic cooredinates associated with particular genes, and their gene symbols. So, if we are interested in MITF, we can just do:
+
+`bash
+grep MITF dog_genecoordinates_table_CamFam3.1.txt
+20	21612927	21870578	ID=gene:ENSCAFG00000006496;Name=MITF;biotype=protein_coding;description=melanocyte inducing transcription factor [Source:VGNC Symbol%3BAcc:VGNC:43248];gene_id=ENSCAFG00000006496;logic_name=ensembl;version=5
+```
+
+In many cases, we will want to expand the window of interest up and downstream of the gene boundaries, so as to try and capture variation in UTRs or other regulatory sequences. As a demonstration, we can arbitrarily expand the window by subtracting 20kb from the start coordinate and add 20kb to the end coordinate. To extract a vcf file of this region that is non compressed, we do:
+
+```bash
+bcftools view -r 20:21592927-21870578 classdata_Freedmandata_merged.vcf.gz > MITF_genotypes.vcf
+```
+
+We can then use a custom python script, GetAltAlleleFreqsFor2PopsFromVcf.py, in the scripts directory that, for two pre-defined "populations", meaning lists of sample names in the vcf:
+* for each SNP in the vcf file (in our case the one for MITF), calculate the frequency of the alternative allele for each population and write them to a file, and if there are no genotypes for a population, the frequency gets reported as "NA".
+* In that same file, print the samples comprising each population
+* print to the screen the mean alternative allele frequency across sites in the vcf, by population
+* print to the screen the number of sites for each population from which frequencies could be calculated
+* to see if allele frequencies are correlated on a site-wise basis, print to the screen the pearson's correlation coefficient across sites for which allele frequencies could be calculated for both populations.
+
+The allele frequency correlation is interesting because, while mean diversity in a population is very much shaped by demographic history, allele frequencies at particular loci may diverge not just due to random sampling (i.e. genetic drift) but also by divergent natural selection. Particularly for candidate gene regions of interest, the decoupling of allele frequencies between populations at a site-wise resolution may indicate selection is at work.
+
+To run the script on the MITF gene interval vcf, one would do:
+```bash
+python ../scripts/GetAltAlleleFreqsFor2PopsFromVcf.py -v MITF_genotypes.vcf -pop1 leo,dice,Luna,Bambino,PeppersSisterAbby,Logan,Pebbles,Marisol,Mickey,milly,Pepper,doom,Edna -pop2 IsraeliWolf,CroatianWolf,ChineseWolf -o MITF_allelefrq_classdogsVswolves.txt
+```
+
+where:
+* `-v` is the input uncompressed vcf file
+* `pop1` is a comma-separate list of the sample ids for populaton 1
+* `pop2` is a comma separated list of the sample ids for population 2
+* `-o` is the name of the output allele frequency file we are writing
+
+These are the first few lines of the output file:
+
+```bash
+pop1 is leo,dice,Luna,Bambino,PeppersSisterAbby,Logan,Pebbles,Marisol,Mickey,milly,Pepper,doom,Edna
+pop2 is IsraeliWolf,CroatianWolf,ChineseWolf
+chromosome	position	pop1_altfrq	pop2_altfrq
+20	21594400	1.0	1.0
+20	21596545	0.0	0.0
+20	21597316	0.6923076923076923	0.0
+```
+
+and what is printed to the screen is:
+
+```bash
+number of observable pop1 alt freqs = 82
+mean pop1 alt frq = 0.2758599124452783
+
+number of observable pop2 alt freqs = 65
+mean pop2 alt frq = 0.2717948717948718
+
+allele frequency correlation between callable sites = PearsonRResult(statistic=0.43604269296736553, pvalue=0.0002825576062169318)
+```
