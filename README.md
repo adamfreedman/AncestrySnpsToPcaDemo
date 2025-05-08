@@ -353,3 +353,23 @@ mean pop2 alt frq = 0.2717948717948718
 
 allele frequency correlation between callable sites = PearsonRResult(statistic=0.43604269296736553, pvalue=0.0002825576062169318)
 ```
+
+#### Calculating sample-level heterozygosity
+Heterozygosity estimates across a region of interest are another useful metric, as diversity can be reduced as a result of positive selection. Calculating estimates with `bcftools` is not trivial without doing a bunch more data manipulation. But ... the older [vcftools](https://vcftools.github.io/index.html) can generated such metrics very quickly. To do this, do:
+
+```bash
+vcftools --gzvcf classdata_Freedmandata_merged.vcf.gz --het --out allsites
+```
+This produced a file *allsites.het*, as `--out` specifies the output file prefix.
+
+The first few lines of the output file are:
+```bash
+INDV	O(HOM)	E(HOM)	N_SITES	F
+leo	409563	356812.1	552461	0.26962
+dice	378604	358193.1	554555	0.10395
+Luna	377899	358791.5	555499	0.09714
+Bambino	389936	358325.5	554792	0.16090
+```
+
+which reports, per sample, the observed heterozygosity, the expected heterozygosity, the number of sites used in the calculations, and the inbreeding coefficient *F*.
+ 
