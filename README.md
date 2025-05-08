@@ -372,4 +372,5 @@ Bambino	389936	358325.5	554792	0.16090
 ```
 
 which reports, per sample, the observed heterozygosity, the expected heterozygosity, the number of sites used in the calculations, and the inbreeding coefficient *F*.
- 
+
+**NOTE**: if you use one of the region files you generated with *bcftools* using the command line a bit above this, because it outputs uncompressed vcf format, you need to change the `--gzvcf` switch in the *vcftools* command line to `--vcf`. 
