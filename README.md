@@ -68,6 +68,14 @@ SNP array chips such as those used by Ancestry have a unique chip ID. Unofortuna
 for i in *ped;do j=`head -1 $i |awk '{print $1"_"$2}'`; echo $i,$j |sed 's/.ped//' |sed 's/data//'| sed 's/a_31230811903758/a/' |sed 's/m_31230710411425/m/' >> name_to_array_id.txt;done
 ```
 
+The first few lines of name_to_id.txt look like this:
+```bash
+Bambino,0_31230710006619
+Edna,0_31230811903758
+Logan,0_31230710006801
+Luna,0_31230710006612
+```
+
 **NOTE**: this one-liners is not universally applicable to other arbitrary sets of dog samples--I was using a set of 13 of your dogs' genotypes, and there was some idiosyncratic naming that required I write the nonsense above. In prindiple, thre is probably a cleaner, more generalizable way of doing that, which I will try and add soon in case you want to revisit this whole workflow example
 
 Anyway, I also wrote a short python script that takes the merged vcf file, and then replaces the array ids with the dogs names. It gets run very simply as:
