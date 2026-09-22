@@ -1,0 +1,28 @@
+PLINK v1.9.0-b.8 64-bit (22 Oct 2024)
+Options in effect:
+  --allow-extra-chr
+  --chr-set 42
+  --make-bed
+  --out huxley
+  --tfam huxley.tfam
+  --tped huxley.tped
+
+Hostname: FAS-GJ3WCJFTQ4
+Working directory: /Users/adamfreedman/workspace/AncestrySnpsToPcaDemo/data
+Start time: Tue Sep 22 12:15:05 2026
+
+Random number seed: 1790093705
+18432 MB RAM detected; reserving 9216 MB for main workspace.
+Processing .tped file.
+huxley-temporary.bed + huxley-temporary.bim + huxley-temporary.fam written.
+82434 variants loaded from .bim file.
+1 sample (1 male, 0 females) loaded from .fam.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 1 founder and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.99977.
+82434 variants and 1 sample pass filters and QC.
+Note: No phenotypes present.
+--make-bed to huxley.bed + huxley.bim + huxley.fam ... done.
+
+End time: Tue Sep 22 12:15:05 2026
