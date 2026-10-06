@@ -1,0 +1,27 @@
+PLINK v1.9.0-b.8 64-bit (22 Oct 2024)
+Options in effect:
+  --bfile dogs_merged_acgt
+  --chr-set 42
+  --exclude exclude_unknown_alleles.txt
+  --make-bed
+  --out dogs_merged_acgt_no_unknown
+
+Hostname: FAS-GJ3WCJFTQ4
+Working directory: /Users/adamfreedman/workspace/AncestrySnpsToPcaDemo/data
+Start time: Wed Sep 23 14:44:48 2026
+
+Random number seed: 1790189088
+18432 MB RAM detected; reserving 9216 MB for main workspace.
+82297 variants loaded from .bim file.
+2 samples (1 male, 1 female) loaded from .fam.
+--exclude: 50706 variants remaining.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 2 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.999882.
+50706 variants and 2 samples pass filters and QC.
+Note: No phenotypes present.
+--make-bed to dogs_merged_acgt_no_unknown.bed + dogs_merged_acgt_no_unknown.bim
++ dogs_merged_acgt_no_unknown.fam ... done.
+
+End time: Wed Sep 23 14:44:48 2026

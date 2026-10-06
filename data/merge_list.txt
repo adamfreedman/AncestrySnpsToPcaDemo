@@ -1,1 +1,2 @@
+huxley.bed huxley.bim huxley.fam
 ida.bed ida.bim ida.fam

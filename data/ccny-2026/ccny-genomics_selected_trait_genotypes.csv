@@ -1,0 +1,38 @@
+dog_id,ALX4_Blue_Eyes_Linkage,ASIP_A_locus,CBD103_K_locus,EPAS1_altitude,FGF5_longcoat,GHR_size1,GHR_size2,IGF1_size,IGFR1_toy,Intensity_red_pigment,KRT71_CurlyCoat,LMBR1_Claw,MC1R_E_locus,MITF_white_spotting,MLPH_D_locus,PMEL_Merle,RALY_Saddle_trait_gene,RSPO2_moustache,STC2_size,TYRP1_B_locus,USH2A_Roan
+coyote_10,N/N,AwAw,KyKy,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,EE,SS,DD,mm,NI,II,TT,BB,rr
+coyote_9,N/N,AwAw,KyKy,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,EE,SS,DD,mm,NI,II,TT,BB,rr
+coyote_8,N/N,AwAw,KyKy,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,EE,SS,DD,mm,NN,II,TT,BB,rr
+coyote_7,N/N,AwAw,KyKy,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,EE,Ssp,DD,mm,NN,II,TT,BB,rr
+ibizan_hound_1,N/N,AyAy,KyKy,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,ee,SS,DD,mm,NN,II,TT,bb,rr
+coyote_6,N/N,AwAw,KyKy,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,Eme or Ee,SS,DD,mm,NN,II,TT,BB,rr
+coyote_4,N/N,AwAw,KyKy,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,EE,SS,DD,mm,NN,II,TT,BB,rr
+coyote_5,N/N,AwAw,KyKy,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,EE,SS,DD,mm,NN,II,TT,BB,rr
+coyote_3,N/N,AwAw,KyKy,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,EE,SS,DD,mm,NN,II,TT,BB,rr
+coyote_2,N/N,AwAt,KyKy,GG,ShLh,GG,CC,NN,GG,Intermediate,CC,CC,EE,SS,DD,mm,NI,II,TT,BB,rr
+gray_wolf_9,N/N,AyAt,KyKy,GG,ShSh,GG,CC,NN,GG,Low,CC,CT,Ee,Ssp,DD,mm,NI,II,TT,BB,rr
+gray_wolf_10,N/N,AyAt,KyKy,GG,ShSh,GG,CC,NN,GG,Low,CC,CC,Ee,Ssp,DD,mm,NN,II,TT,BB,rr
+gray_wolf_8,N/N,AyAw,KyKy,GG,ShSh,GG,CC,NN,GG,Low,CC,CT,Ee,Ssp,DD,mm,NN,II,TT,BB,rr
+gray_wolf_7,N/N,AtAt,KBKy,GG,ShSh,GG,CC,NN,GG,Low,CC,CC,EE,SS,DD,mm,NN,II,TT,BB,rr
+gray_wolf_6,N/N,AwAt,KyKy,GG,ShSh,GG,CC,NN,GG,Low,CC,CC,EEa,SS,DD,mm,NN,II,TT,BB,rr
+gray_wolf_5,N/N,AtAt,KyKy,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,EE,Ssp,DD,mm,NN,II,TT,BB,rr
+dominica_village_dog_1,N/N,AyAy,KyKy,GG,LhLh,GG,CC,II,GG,Intermediate,CC,CC,EmE,SS,DD,mm,NN,II,TT,BB,rr
+gray_wolf_4,N/N,AyAw,KBKy,GG,ShSh,GG,CC,NN,GG,Low,CC,CC,ee,Ssp,DD,mm,NN,II,TT,BB,rr
+coyote_1,N/N,AyAw,KyKy,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,EE,Ssp,DD,mm,NN,II,TT,BB,rr
+gray_wolf_3,N/N,AwAt,KyKy,GG,ShSh,GG,CC,NN,GG,Low,CC,CC,EE,Ssp,DD,mm,NI,II,TT,BB,rr
+Ida,N/N,AyAy,KBKy,GG,ShLh,GG,CC,NN,GG,Intermediate,CC,CT,EmE,spsp,DD,mm,NN,II,TT,Bb or bb,rr
+Huxley,N/N,AyAt,KyKy,GG,ShSh,GG,CC,NI,GG,Intermediate,CC,CC,EE,SS,DD,mm,NI,II,TA,BB,Rr
+tibetan_mastiff_1,N/N,AyAy,KyKy,AA,ShLh,GG,CC,NI,GG,Intermediate,CC,CT,EE,SS,DD,mm,NN,II,TT,BB,Rr
+gray_wolf_2,N/N,AwAt,KBKy,GG,ShSh,GG,CC,NN,GG,Low,CC,CC,Ee,SS,DD,mm,NI,II,TT,BB,rr
+central_african_village_dog_1,N/N,AyAy,KyKy,GG,LhLh,GG,CC,NN,GG,Intermediate,CC,CC,EmE,Ssp,DD,mm,NN,II,TT,BB,rr
+portuguese_podengo_pequeno_1,N/N,AyAy,KyKy,GG,ShSh,AA,CC,II,GA,Intermediate,CC,TT,Ee,Ssp,Dd,mm,NN,FI,AA,BB,rr
+german_shorthaired_pointer_1,N/N,AtAt,KBKB,GG,ShSh,GG,CC,NN,GG,Intermediate,CC,CC,EE,spsp,DD,mm,NI,II,TT,bb,RR
+great_pyrenees_1,N/N,No Call,KyKy,GG,LhLh,GG,CC,NN,GG,Low,CC,CT,Ee,spsp,DD,mm,NN,II,TT,BB,rr
+poodle_1,N/N,AtAt,KBKB,GG,LhLh,GG,CC,II,GG,Intermediate,TT,CC,Ee,SS,DD,mm,II,FF,TT,BB,rr
+gray_wolf_1,N/N,AtAt,KyKy,GG,ShSh,GG,CC,NN,GG,Low,CC,CC,EE,Ssp,DD,mm,NN,II,TT,BB,rr
+siberian_husky_1,Dup/Dup,AwAw,KyKy,GG,LhLh,GA,CC,NN,GG,Intermediate,CC,CT,EmEa,Ssp,DD,mm,NN,II,TT,Bb,rr
+german_shepherd_dog_1,N/N,AtAt,KyKy,GG,ShLh,GG,CC,NN,GG,Low,CC,CC,Eme or Ee,SS,DD,mm,II,II,TT,BB,rr
+golden_retriever_1,N/N,Ata,KBKy,GG,LhLh,AA,CC,NN,GG,Low,CC,CC,ee,SS,DD,mm,NI,II,TA,BB,rr
+bulldog_french_1,N/N,Ata,KyKy,GG,ShSh,GA,CC,II,GG,Intermediate,CC,CC,Eme or Ee,Ssp,dd,M*m,NN,II,TT,BB,rr
+DOG02,,,,,,,,,,,,,,,,,,,,,
+DOG13,,,,,,,,,,,,,,,,,,,,,
+DOG10,,,,,,,,,,,,,,,,,,,,,
