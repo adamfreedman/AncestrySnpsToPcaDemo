@@ -5,18 +5,24 @@ Many people are interested in the breed origins of their dogs. One will often he
 
 This repository demonsrates how one would analyze the data yourself, if say you and a bunch of friends got back results for your dogs and wanted to compare them. The goal of this demo is to wrangle the Embark data so that you can:
 
-* merge all of the Embark-generated dog genotypes from a bunch of samples
-* merge these with a panel of publicly available canid samples.
+* Merge your dog's (or all of the class') Embark data with Embark-provided reference samples
+  * these include wolf, coyote, and select dog breed samples (and a few of the class dogs)
+* Merge these with a panel of publicly available wolf, dog and jackal samples
+* Convert to variant call format (vcf)
+* Do some basic analyses
+  * PCA on genootypes to see where samples fall relative to one another
+  * Calculate heterozygosity to compare dog and wild canid samples
+    * Which do you expect to have higher heterozygosity?
 
 ## The publicly available data
 In this particular demo, we will merge the dog data with genotypes obtained from whole-genome sequencing for 6 canids: dingo, Bajenji, Chinese wolf, Croatian wolf, Israeli wolf, and Golden Jackal. These data were first published alongside a study investigating the timing and geographic origins of dogs [Freedman et al. 2014, *PLoS Genetics*](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1004016).
 All samples were sequenced to relatively high coverage (approximately 20x each), meaning that, on average, enough sequencing reads overlap any particular site in the genome such that heterozygous sites can be genotyped with high confidence. 
 
-## Data analysis: Embark samples
+## Data analysis: your dogs
 ### PLINK files: 1st steps
 PLINK is a software package for manipulating genotype array data. Unsurprisingly, PLINK also refes to a particular file format, or more specifically, a set of files that store genotypes that can be used with PLINK and other tools that can take PLINK format files as input. There are text-reader readible PLINK files that have *ped*, *fam*, and *map* file extensions--typically, each genotyped sample has one of each of these files. There are are also binary versions ("bim and *bed). As is typicaly in bioinformatics, the same prefix can be used for different software and different data analysis contexts, e.g. "bed" files also refer to flat text files that represent genomc intervals. If you decide to stay in biology and as a result, do a bit of data crunching, you will get used to this! Or, you won't and may wind up being the owner of a vegan bakery instead.
 
-### What Embark provides
+### What Embark provides to you
 Embark uses a subset of the Canine HD genotyping chip single nucleotide polymorphisms (SNPs), for a total of 82,434 polymorphic genomic positions.
 Embark provides two files for your dog genotypes:
 * a file ending with tfam. which is a "transposed" version of the fam file that has the following columns:
@@ -41,13 +47,13 @@ The reported genotype data are "biallelic", meaning there are two possible nucle
 
 I submitted my (male) dog Huxley's sample and his tfam file looks like this:
 
-```
+```bash
 WG0714125-DNA_D06_31250960227040 WG0714125-DNA_D06_31250960227040 0 0 1 -9
 ```
 
 and the first few lines of his tped file look like this:
 
-```
+```bash
 1 BICF2P98519 0 486173 A A 
 1 BICF2G630707957 0 511277 A A
 1 BICF2G630707977 0 602567 G G
@@ -57,7 +63,11 @@ Notice that there is no value provided for the genetic distance field (0 means u
 
 
 The family id and sample id are internal Embark reference numbers we don't care about. I can open the file up with a text editor and change the sample id field.
-#### Counting the number of chromosomes
+
+### What Embark provided to the class
+Embark was nice enough to provide a merged PLINK file with a few reference wild canids (wolf and coyote), a few reference dog breed samples, and a few of the class dogs. If one of the class dogs is yours, you can follow along, or we can help you remove your dog data so you can practice re-adding it! Below, we will be merging additional class dogs to the data set.
+
+### Counting the number of chromosomes
 Annoyingly, genotype arrays can have a number of chromosomes, or have chromosome names that the PLINK software does not like. One can easily write *tped (or ped) , tfam (or fam) and *map files without every opening PLINK. But try and get PLINK to read your files, and, the headaches will begin. So, what we do is, first count the number of chromosomes. Because all of our example dog files from Embark have the same structure, we'll use the genotypes from Huxley.
 
 ```bash
@@ -72,7 +82,7 @@ This is just a command line parsing of the tped file (which contains the chromos
 * 42 = the mitochondrial chromosome
  
 
-#### Create binary version of plink files
+### Create binary version of plink files
 For a number of downstream tasks, it is convenient to covert the genotypes to binary PLINK format. All we do here is, in the shell, create an array called samples, add sample names to it, then use PLINK to stick, one by name, the sample names in a search for the tped and tfam files and thenm output binary versions. The important thing here is that we explcitly set the number of chromosoems to 82 and use the *--allow-extra-chr* switch to tell PLINK not to comlain about the weird number of chromosomes.
 
 ```bash
@@ -81,23 +91,47 @@ for f in *.tped; do samples+=("${f%.tped}");done
 for i in $samples; do plink  --tped ${i}.tped --tfam ${i}.tfam --make-bed --chr-set 42  --allow-extra-chr --out ${i};done
 ```
 
-#### Create a list of dog sample binary PLINK files 
+### Create a list of dog sample binary PLINK files 
 Why do we need to do this? Becaue in order to merge the individual sample PLINK files into one that contains the genotypes of all of the Embark dogs, we need to supply a file that lists these files.
 
+If you change the names of your dog's files to be your dog's name you would create a merge file like this:
+
 ```bash
-ls *.bed | sed 's/.bed$//' | while read i
-do awk -v val="$i" 'BEGIN { print val".bed "val".bim "val".fam" }' |grep -v huxley>> merge_list.txt
-done
+for i in huxley ida;do awk -v val="$i" 'BEGIN { print val".bed "val".bim "val".fam" }' >> merge_list.txt
 ```
 
-`grep -v` means we are excluding the dog named Bambino. Why? Because of PLINK weirdness, we need to supply the files for a particular sample (dog) and then a list of the other samples you want to merge with it. 
+merge_list.txt would look like this:
+
+```bash
+huxley.bed huxley.bim huxley.fam
+ida.bed ida.bim ida.fam
+```
 
 #### Merge dog binaries into multi-sample PLINK files
 Once again, we need to specify arguments so that PLINK doesn't complain about the non-standard number of chromosomes, merging all the files corresponding to samples in merge_list.txt to those for Huxley:
 
 ```bash 
-plink --bfile huxley --chr-set 42 --merge-list merge_list.txt --make-bed --out dogs_merged --allow-extra-chr
+plink --bfile embark_idahux_removed/embark_refpanel_classsubset \
+  --allow-extra-chr \
+  --chr-set 42 \
+  --make-bed \
+  --merge-list merge_list.txt \
+  --out refpanel_plusHuxleyandIda
 ``` 
+
+This produces a merged file set in which:
+* the fam file says what the samples are in genotypes (bed) file, and the order they are in
+* the bim file contains the alleles (like the tped files we looked at above)
+* the bed file is a binary-compressed file that contains the coding of how the observed alleles at a particular genomic position (per the bim file) appear as genotypes for the samples
+
+
+*NOTE:* Embark had added Huxley and Ida to the data they sent us, but for the purposes of the demo I removed them. That is why the files are in the **embark_idahux_removed** directory.
+*ALSO NOTE:* There is some weirdness in:
+ * how plink handles the merge, and
+ * how insertion/deletion polymorphisms are encoded in the Embark files
+ * both create issues for downstream analysis which we will describe and fix below!
+
+
 
 #### Convert merged dog files to vcf format
 [vcf](https://gatk.broadinstitute.org/hc/en-us/articles/360035531692-VCF-Variant-Call-Format) format is the standard format for representing genotypes calculated using genome sequencing data, whether that be whole-genome sequencing or some form of "reduced representation" , such as when sequencing is done for targed regions of a genome, e.g. protein-coding genes. It contains a number of header fields that are "commented out" with "#" characters, that typically describe the chromosomes names in the file, and what various codes mean. The data part of the file describes which variants are observed and in which samples at a given genomic position, e.g.:
@@ -108,55 +142,99 @@ plink --bfile huxley --chr-set 42 --merge-list merge_list.txt --make-bed --out d
 
 A few things to notice about vcf format. First, each row contains a REF and and an ALT allele. The REF allele is, not surprisingly the reference allele. For genotyping based off of aligning sequencing reads to a reference genome, the REF allele is the nucleotide observed at that position in the genome, which is typically represented in a haploid form, i.e. there is only one base. Second, the genotypes are reprsented by number combinations, with 0 denoting the REF allele and increasing integers referencing ALT alleles, which are listed in the ALT fields. It is entirely possible to have more than one alternative allele. So, if your REF allele is A, you have two alternative alleles, C and G, and a set of samples have the genotypes A/A,A/C, and A/G, they would be represented in the vcf file as 0/0, 0/1, and 1/2. If no genotype was called for a sample at a particular site, it will be represented as ./..
 
-### Replace SNP chip ids with sample names in vcf file
-SNP array chips such as those used by Ancestry have a unique chip ID. Unofortunately, that is the information in the original PLINK files treated as the sample name. Of course, that doesn't really help us in seeing what dogs share more genetic similarity, or their genetic distance from wild canids. I had to write a rather ugly one-liner to write a file that maps the array id to the dog names.
+Anyway ... we can use PLINK to convert the merged dog files to vcf format. But we have to do so in a way that accounts for some weirdness in the Embark data. My first pass at converting to vcf yielded some warnings, which are due to lines like this:
 
 ```bash
-for i in *ped;do j=`head -1 $i |awk '{print $1"_"$2}'`; echo $i,$j |sed 's/.ped//' |sed 's/data//'| sed 's/a_31230811903758/a/' |sed 's/m_31230710411425/m/' >> name_to_array_id.txt;done
+1	BICF2S23413543	0	77788182	0	A
+2	BICF2G630675117	0	10765467	0	G
+1	chr1_13260261	6.62444	13260261	I	D
+1	chr1_31267439	25.5556	31267439	I	D
 ```
 
-The first few lines of name_to_id.txt look like this:
-```bash
-Bambino,0_31230710006619
-Edna,0_31230811903758
-Logan,0_31230710006801
-Luna,0_31230710006612
-```
 
-**NOTE**: this one-liners is not universally applicable to other arbitrary sets of dog samples--I was using a set of 13 of your dogs' genotypes, and there was some idiosyncratic naming that required I write the nonsense above. In prindiple, thre is probably a cleaner, more generalizable way of doing that, which I will try and add soon in case you want to revisit this whole workflow example
+The columns of the bim file are the same as the tped file. The first two lines indicate the first allele (see column 5) is unknown. The last two lines appear to be insertion/deletion polymorphisms, or something else? But they do not conform to the standard format for PLINK files, nor are they appropriate for vcf files--downstream tools expect certain values in certain columns and these are not found in the universe of acceptable things!
 
-Anyway, I also wrote a short python script that takes the merged vcf file, and then replaces the array ids with the dogs names. It gets run very simply as:
 
+So ... how did this happen?? In the original files supplied by Embark (tped and tfam), my dogs are homozygous for A:
 
 ```bash
-python WriteNamesToVcf.py 
+1 BICF2S23413543 0 77788182 A A 
 ```
 
-which produces namesfixed_dogs_merged.vcf, the vcf with dog names.
-
-#### Compressing the merged dog vcf file
-Downstream manipulations, filtering, and analysis of the merged vcf file will require access to particular sets of fields with a software package called [bcftools](). *bcftools* can do useful things like extracting the genotypes in a particular genomic region (or for a particular genomic position. However, we need to compress the vcf file with another tool that comes bundles with *bcftools*, called *bgzip*
+BUT ... the bim files look like this:
 
 ```bash
-bgzip namesfixed_dogs_merged.vcf
-```
+1	BICF2S23413543	0	77788182	0	A
+``` 
+ 
+So, the file conversion to bim/bam messed with the allele coding. Welcome to bioinformatics. There are only a small number of insertion/deletion polymorphisms and since we don't have their nucleotide sequence, it is best to remove them. Similarly, we can fix the bim files, such that, when allele 2 is an actual nucleotide and allele 1 is 0, we can replace the 0 with the allele 2 nucleotide. The bed file references these columns in composing the genotypes so when we do this fix, we will be able to ouptut proper genotypes in vcf format (below).
 
-**NOTE**: For those of you familiar with *gzip*, gzipping a file is NOT the same as zipping it with *bgzip*!
-
-#### Remove variants with "unknown value"
-This is a rather surreal feature of PLINK format, and of genotyping arrays as well. It is possible to genotype a site for which the genommic position is unknown. PLINK format stores these in chromosome "0". I am extremely wary of sites that can't be ascribed to a known genomic position, and so it is best to filter them out. *bcftools* has a very straightforward way of doing this:
+We can use a simply python script to recode allele2 zeroes as the same as allele1:
 
 ```bash
-bcftools view -i 'POS>0' -Oz -o nounknown_namesfixed_dogs_merged.vcf.gz namesfixed_dogs_merged.vcf.gz
+python scripts/fix_bim_alleles.py --input refpanel_plusHuxleyandIda.bim --output fixed_refpanel_plusHuxleyandIda.bim
 ```
 
-* `view` is a module for reading the file
-* `-i` means include all records that pass filtering criteria
-* `'-POS>0'` instructs bcftools to only include entires with a position >0; variants where chromosome is unknown (i.e. 0) also have a position of 0
-* `-Oz` tells bcftools to output the results in bgzip-compressed format
-* `-o` specifies the output file name
-* the final argument is the input file name
-where the first command line argument follows ther `-o` which means "name of the output file without chromosome 0", and the last argument is our input file.
+Then we can just replace the original bim with the fixed one:
+
+```bash
+mv fixed_refpanel_plusHuxleyandIda.bim refpanel_plusHuxleyandIda.bim
+```
+
+
+We have one more problem ... that being the weird I/D coded sites. To remove these, we make a list of sites to remove:
+
+```bash
+awk '$5=="I" || $5=="D" || $6=="I" || $6=="D"{print $2}' refpanel_plusHuxleyandIda.bim > indels_to_remove.txt
+```
+
+if we look at indels_to_remove.txt, we see it contains IDs for sites we want to exclude:
+```head indels_to_remove.txt
+
+chr1_13260261
+chr1_18279197
+chr1_30738967
+chr1_31267439
+chr1_80378956
+chr1_105488957
+chr2_14878403
+chr2_23177124
+chr2_58778583
+chr2_69490724
+
+```
+
+
+Then we feed this list to PLINK:
+
+```bash
+plink --bfile refpanel_plusHuxleyandIda \
+  --allow-extra-chr \
+  --chr-set 42 \
+  --exclude indels_to_remove.txt \
+  --make-bed \
+  --out no_indels_fixed_refpanel_plusHuxleyandIda
+```
+
+How many indels did we remove? Let's get line counts for the before and after bim files:
+
+```bash
+wc -l *refpanel_plusHuxleyandIda.bim
+```
+From those results, we see that we removed 127 I/D sites
+
+
+Now, let's convert our merged bim/bed file to vcf using PLINK:
+
+```bash
+plink \
+  --bfile no_indels_fixed_refpanel_plusHuxleyandIda  \
+  --allow-extra-chr \
+  --chr-set 42 \
+  --recode vcf bgz \
+  --out cleanedSNPs_refpanel_plusHuxleyandIda
+
+What does `recode vcf bgz` do? recode tells PLINK that you want to output a different kind of data, vcf tells it to make a vcf file, and bgz tells PLINK to compress it using a tool called *bgzip*. *bgzip is part of[htslib](https://www.htslib.org/doc/bgzip.html), and it allows for "random access" of different genomic intervals with tools designed to handle bgzip-compressed files. In fact we will such a tool right now, called [bcftools](https://samtools.github.io/bcftools/bcftools.html), which is useful for doing all sorts of filtering, manipulation, and information extraction from vcf files. What are we going to do? Remove sites with > 2 alleles.
 
 
 #### Remove multi-allelic sites
@@ -165,23 +243,36 @@ Mult-allelic sites are often enriched for erroneous genotypes, with such errors 
 We can remove multi-allelic and indel sites with *bcftools* as follows:
 
 ```bash
-bcftools view -m2 -M2 -v snps nounknown_namesfixed_dogs_merged.vcf.gz -Oz -o dogs_biallelic_snps.merged.vcf.gz
+bcftools view -m2 -M2 -v snps cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -Oz -o biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
 ```
 * `-m2 -M2` tells bcftools to only keep sites with a minimum and maximum of 2 alleles
 * `-v snps` indicates to only keep single nucleotide polymorphisms (SNPs), excluding insertions, deletions, and other structural variants
 
-These commands produce an output file consisting solely of bi-allelic SNPs.
+Technically, we shouldn't need the `-v` as we already removed the I/D sites ... which were incorrectly formatted and likely wouldn't get picked up by bcftools. In a proper vcf files, for an indel site you'd see a list of alleles like this:
 
 
-#### Removing SNPs on unordered scaffolds
-Genome assemblies are comprised of scaffolds,which are comprised of shorter sequences called contigs that are glued together in an inferred order. In most cases, there are a bunch of contigs that cannot be unambiguously scaffolded. As a result, they get dumped into a fake chromosomes, usually named "Un", which is created by concatenating all of the contigs that couldn't be scaffolded. There are also scaffolds that are not chromosome scale and often have longer alphanumeric names, rather than single digits such as 1 or "chr1" for chromosome 1. It is harder to assess the quality of the contig assemblies on Un, and any variants detected in them cannot be placed into any useful genomic context: we don't know fif they actually belong on a chromosome, and how far they are to other called variants, and we certainly can't tell if they are near any genes, so they don't really have any use for downstream functional analyses. Therefore, we can remove variants from Un:
+`bash
+A,ACTG
+```
+
+To see how many records were eliminated we need to count the sites kept in the output, but to compare, we need to create bcftools indexes for the pre and post multi-allelic site removal vcfs:
 
 ```bash
-gunzip -c dogs_biallelic_snps.merged.vcf.gz |grep -v Un > noUn_dogs_biallelic_snps.merged.vcf
+bcftools index -t cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
+bcftools index -t biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
 ```
-This command line removes lines with Un in them, not just genotype data lines but comments in the header that reference Un scaffolds.
 
-Also, we need to bgzip the output:
+Then, count records:
+
+```bash
+bcftools view -H -v snps cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz | wc -l
+bcftools view -H -v snps biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz |wc -l
+```
+
+Guess what? There were no multi-allelic sites so the line counts are the same. Fwiw ... when we previously used data from Ancestry, there were such sites.
+
+
+
 ```bash
 bgzip noUn_dogs_biallelic_snps.merged.vcf
 ``` 
