@@ -273,82 +273,103 @@ Guess what? There were no multi-allelic sites so the line counts are the same. F
 
 
 #### Removing ambiguously named chromosomes
-For SNP calling, we don't want to use sites for which, for some samples, there are not two chromosome copies, e.g. males don't have two X chromosomes, and females
+For SNP calling, we don't want to use sites for which, for some samples, there are not two chromosome copies, e.g. males don't have two X chromosomes, and females, and the mitochondrial chromosome is haploid. Remember that chr 39-42 correspond to X, Y, pseudoautomsomal region of X and mtDNA. We want to exclude these before we do any analysis
 
 
 
 ```bash
-bcftools view --targets ^39,40,42 noUn_dogs_biallelic_snps.merged.vcf.gz -O z -o chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
-bcftools index chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
+bcftools view --targets ^39,40,41,42 biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -O z -o chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
+bcftools index chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
 ```
 
-* `targets ^39,40,42` tells bcftools to exlude SNPS on those chromosomes, the `^` means "not". If you remove it then you would only retain SNPs on those chromosomes
+* `targets ^39,40,41,42` tells bcftools to exlude SNPS on those chromosomes, the `^` means "not". If you remove it then you would only retain SNPs on those chromosomes
 * as you might guess, you don't need to put a space between `-O` and `z` (we didn't in the last command), it's up to you which you think is more readable ... but .. in a long command line, the spaces can help you track down mistakes
 
 ### Looking for variation in genes of interest.
-In our paper looking at signals of positive selection on the dog genome that took place early in domestication, [Freedman et al, 2016 PLoS Genetics](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1005851), one of the genes near the strongest signal was nocturnin, CCRN4L, a gene that plays an important role in lipid metabolism. We can use *bcftools* to see if any of our SNPs overlaps this genic region, which we'll expand by adding 20kb to either side of it:
+In our paper looking at signals of positive selection on the dog genome that took place early in domestication, [Freedman et al, 2016 PLoS Genetics](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1005851), the region with the strongest selection signal is centered on a gene called LHFPL3, a gene involved in brain function. If we got to Figure 5 in that paper, we can get the coordinates of that hit (the top row in the figure), and extract SNPs in our data (if they exist): 
+
 
 ```bash
-bcftools view -r 19:3568695-3629307 chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz -o nocturnin_20kbbuffer_classdogs.vcf
+bcftools view -r 18:15490000-15780000 chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -o topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
 ```
 
-**WAIT!!**. Something weird is happening. There appear to be more than one site with the same genomic coordinates:
+
+#Verifying reference allele is correct
+In genotype array data, one can't guarantee that one allele that the allele in PLINK files assigned to the "REF" field in vcf file is in fact the reference allele in the genome. It is important to verify that it is, or fix it if it isn't before merging with data sets --such as *Freedman et al. 2016*, that are based upon aligning NGS reads to a genome, such that by definition, the REF allele is that in the genome.
+
+In the LHFPL3 region extracted above, there doesn't appear to be any indication of misassignment--it would show up as multiple lines for a genomic position with each having a different reference allele.
+
+What we do see if we do a `grep` to remove some lines in the header:
 
 ```bash
-19	3573889	AX-167376129	T	G	.	.	PR	GT	0/0	./.	./.	./.	0/0	0/1	./.	./.	0/0	0/0	./.	0/1	0/1
-19	3573889	AX-168184528	T	G	.	.	PR	GT	./.	0/0	0/0	0/1	./.	./.	./.	0/0	./.	./.	0/0	./.	./.
-19	3590517	AX-168283112	C	G	.	.	PR	GT	0/1	0/0	0/0	0/1	0/0	0/0	0/1	0/1	0/1	0/0	0/0	0/0	0/0
-19	3610008	AX-167838398	G	A	.	.	PR	GT	0/0	0/0	0/1	0/0	0/1	0/1	0/1	0/1	0/0	1/1	0/0	0/1	0/1
-19	3614797	AX-168252513	C	T	.	.	PR	GT	0/0	0/0	0/0	0/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/0
-19	3619534	AX-168005459	C	T	.	.	PR	GT	0/0	0/0	0/1	0/0	0/1	0/1	0/1	0/1	0/0	1/1	0/0	0/1	0/1```
+grep -v "contig" topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##fileDate=20261006
+##source=PLINKv1.9
+##INFO=<ID=PR,Number=0,Type=Flag,Description="Provisional reference allele, may not be based on real reference genome">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##bcftools_viewVersion=1.23+htslib-1.23
+##bcftools_viewCommand=view -m2 -M2 -v snps -Oz -o biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz; Date=Tue Oct  6 17:11:58 2026
+##bcftools_viewCommand=view --targets ^39,40,41,42 -O z -o chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz; Date=Thu Oct  8 12:38:32 2026
+##bcftools_viewCommand=view -r 18:15490000-15780000 -o topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz; Date=Thu Oct  8 12:49:27 2026
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	class_data_DOG02	class_data_DOG10	class_data_DOG13	reference_bulldog_french_1	reference_central_african_village_dog_1	reference_coyote_1	reference_coyote_2	reference_coyote_3	reference_coyote_4	reference_coyote_5	reference_coyote_6	reference_coyote_7	reference_coyote_8	reference_coyote_9	reference_coyote_10	reference_dominica_village_dog_1	reference_german_shepherd_dog_1	reference_german_shorthaired_pointer_1	reference_golden_retriever_1	reference_gray_wolf_1	reference_gray_wolf_2	reference_gray_wolf_3	reference_gray_wolf_4	reference_gray_wolf_5	reference_gray_wolf_6	reference_gray_wolf_7	reference_gray_wolf_reference_gray_wolf_9	reference_gray_wolf_10	reference_great_pyrenees_1	reference_ibizan_hound_1	reference_poodle_1	reference_portuguese_podengo_pequeno_1	reference_siberian_husky_1	reference_tibetan_mastiff_1	WG0714122-DNA_A10_31250960239597_Ida	WG0714125-DNA_D06_31250960227040_Huxley
+18	15504207	TIGRP2P240252_rs9136342	A	G	.	.	PR	GT	1/1	0/1	1/1	1/1	1/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	1/1	0/1	1/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	1/1	1/1	1/1	0/1	0/1	1/1	1/1
+18	15513954	BICF2P629522	A	G	.	.	PR	GT	0/0	0/1	0/1	0/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/1	0/0	0/0	0/0	0/1	0/0
+18	15605885	G1017f51S308	A	G	.	.	PR	GT	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/0	0/0
+18	15764403	chr18_15764403	G	A	.	.	PR	GT	1/1	0/1	0/0	0/1	1/1	0/1	0/1	1/1	1/1	0/1	0/0	1/1	0/0	0/0	0/1	1/1	0/1	1/1	0/1	0/0	0/1	0/0	0/0	0/0	0/1	0/0	0/0	0/0	0/0	1/1	1/1	0/1	0/0	1/1	1/1	1/1	1/1
 ```
 
-Unfortunately, PLINK has a problem in that without unambiguous reference allele information, it may guess, and also may split some multi-allelic records into multiple lines. In this particular example, notice how for position 3573889, for one SNP id when there are genotypes called, they are missing in the next SNP id. So, we need to deal with that and any other potential splitting that causes redundancy. First, we will create an updated merged vcf file that has the correct reference allele (this will also be needed to merge with genome-sequencing derived genotypes of other canids later on).
+Four bi-allelic SNPs are present in the Embark data in this region.
 
-First, we need to index the genome, this time with [samtools](http://www.htslib.org/). I know ... use *samtools* so you can do something with *bcftools*? What can I say, it's bioinformatics ... if there is a way to make things overly complicated ... that will be the way it is done ...
+Anyway, lets check to make sure there is no wonkiness in allele assignment:
+
 
 ```bash
-samtools faidx Canis_lupus_familiaris.CanFam3.1.dna_sm.toplevel.fa
+samtools faidx GCF_000002285.3_CanFam3.1_genomic_fixed.fna
 ```
+
+where the above genome fasta is "fixed" because proper chromosome names that match the genotyping data replace the scaffold names.
 
 The correct the reference allele in the vcf file to match what is in the genome
 
 ```bash
-bcftools norm --check-ref ws --fasta-ref headerfix_Canis_lupus_familiaris.CanFam3.1.dna_sm.toplevel.fa \ 
-    chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz -O z -o \ 
-    refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz > correct.log 2>&1
+bcftools norm --check-ref ws --fasta-ref GCF_000002285.3_CanFam3.1_genomic_fixed.fna \ 
+    chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -O z -o \ 
+    refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz > correct.log 2>&1
 ``` 
 
-Then, we collapse the multi-line occurrences of a single position into a multi-allelic sites:
+correct.log reads:
 
 ```bash
-bcftools norm -m +any refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz -o collapse2multi_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
+Lines   total/split/joined/realigned/mismatch_removed/dup_removed/skipped:	79283/0/0/0/0/0/0
+REF/ALT total/modified/added:  	79283/18377/37090
 ```
-The output to the screen is:
-```bash
-Lines   total/split/joined/realigned/removed/skipped:	584627/0/4837/0/0/0
-```
-indicating that 4837 lines have been joined into multi-allelic sites.
+
+which means:
+
+* there are 79283 sites
+* 18377 had the REF field corrected
+* 37090 had an allele added
+  * this means there were homozygous sites that were homozygous for an allele different from the reference nucleotide in the genome
+
+
+**There were no other abnormalities that we would need to remedy, e.g. merging genotypes from different samples that got separate lines in the vcf for the same genomic position.
+
 
 Now ... let's index the new genotype file, remove the new multi-allelic sites,  and try to look at nocturnin again!
 
 ```bash
-bcftools view -m2 -M2 -v snps collapse2multi_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz -Oz -o recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
-bcftools index recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
-bcftools view -r 19:3568695-3629307 recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz -o nocturnin_20kbbuffer_classdogs.vcf
-```
-and .. lo and behold ...
-```bash
-cat nocturnin_20kbbuffer_classdogs.vcf
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	leo	dice	Luna	Bambino	PeppersSisterAbby	Logan	Pebbles	Marisol	Mickey	milly	Pepper	doom	Edna
-19	3573889	AX-167376129;AX-168184528	T	G	.	.	PR	GT	0/0	0/0	0/0	0/1	0/0	0/1	./.	0/0	0/0	0/0	0/0	0/1	0/1
-19	3590517	AX-168283112	C	G	.	.	PR	GT	0/1	0/0	0/0	0/1	0/0	0/0	0/1	0/1	0/1	0/0	0/0	0/0	0/0
-19	3610008	AX-167838398	G	A	.	.	PR	GT	0/0	0/0	0/1	0/0	0/1	0/1	0/1	0/1	0/0	1/1	0/0	0/1	0/1
-19	3614797	AX-168252513	C	T	.	.	PR	GT	0/0	0/0	0/0	0/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/0
-19	3619534	AX-168005459	C	T	.	.	PR	GT	0/0	0/0	0/1	0/0	0/1	0/1	0/1	0/1	0/0	1/1	0/0	0/1	0/1
+bcftools index refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
 ```
 
-What we also see, is that the SNP at position 3573889 had the same two alleles (see above) and had the same genotypes but somehow they got split ... PLINK thing ... Ancestry pipeline issue? Who knows? The good news ... we now have very clean data!!
+and re-extract our site of interest:
+
+```
+bcftools view -r 18:15490000-15780000 refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -o topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
+```
+
+# HAVEN'T UPDATED THE BELOW
 
 ### visualizing genetic structure among your dogs: PCA
 Principal components analysis (PCA) has a long history of use in quantifying and visualizing population structure. There has been much debate over what the observed patterns mean, and what underlying evolutionary processes produce them. Needless to say, PCA can be a reasonable good first peek.
