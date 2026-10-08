@@ -72,7 +72,7 @@ Annoyingly, genotype arrays can have a number of chromosomes, or have chromosome
 
 ```bash
 awk '{print $1}' huxley.tped |awk '!a[$0]++' |wc -l > number_chromosomes.txt
-``
+```
 
 This is just a command line parsing of the tped file (which contains the chromosome names of each genotyped site in the genotype array, and counts the unique values. If you open number_chromosomes.txt, it will tell you there are 42 chromosomes in the dog genome. The version of the genome is CanFam3.1 and there are **NOT** 42 autosomes in that genome. There are 38, but Embark data also include the following:
 
@@ -251,7 +251,7 @@ bcftools view -m2 -M2 -v snps cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -Oz -
 Technically, we shouldn't need the `-v` as we already removed the I/D sites ... which were incorrectly formatted and likely wouldn't get picked up by bcftools. In a proper vcf files, for an indel site you'd see a list of alleles like this:
 
 
-`bash
+```bash
 A,ACTG
 ```
 
@@ -272,15 +272,10 @@ bcftools view -H -v snps biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz 
 Guess what? There were no multi-allelic sites so the line counts are the same. Fwiw ... when we previously used data from Ancestry, there were such sites.
 
 
-
-```bash
-bgzip noUn_dogs_biallelic_snps.merged.vcf
-``` 
-
 #### Removing ambiguously named chromosomes
-CanFam3.1 has 38 autosomes, an X, and and MT chromosome. But, the genotyping array has no X, but a 39,40 and 42 ... weird. 39 has a length
-that is suspciously close to that of the X. But, we can't use the X for population structure because not all of the dogs are females, i.e. by
-definition males will only have 0/0 or 1/1. No bueno. The others may or may not be larger scaffolds that have been named. So, we are going to dump them
+For SNP calling, we don't want to use sites for which, for some samples, there are not two chromosome copies, e.g. males don't have two X chromosomes, and females
+
+
 
 ```bash
 bcftools view --targets ^39,40,42 noUn_dogs_biallelic_snps.merged.vcf.gz -O z -o chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz
