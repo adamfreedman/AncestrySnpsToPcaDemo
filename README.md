@@ -336,7 +336,7 @@ where the above genome fasta is "fixed" because proper chromosome names that mat
 The correct the reference allele in the vcf file to match what is in the genome
 
 ```bash
-bcftools norm --check-ref ws --fasta-ref GCF_000002285.3_CanFam3.1_genomic_fixed.fna \ 
+bcftools norm --check-ref ws --fasta-ref GCF_000002285.3_CanFam3.1_genomic_fixed.fna \
     chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -O z -o \
     refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz > correct.log 2>&1
 ``` 
@@ -375,15 +375,49 @@ bcftools view -r 18:15490000-15780000 refcorrected_chrfiltered_biallelic_cleaned
 ### visualizing genetic structure among your dogs: PCA
 Principal components analysis (PCA) has a long history of use in quantifying and visualizing population structure. There has been much debate over what the observed patterns mean, and what underlying evolutionary processes produce them. Needless to say, PCA can be a reasonable good first peek.
 
-I typically use [R](https://www.r-project.org/) for making figure, as well as doing a bunch of data crunching when it is enabled by built-in R packages. To make a PCA, you can do something like this, assuming you are somewhat familiar with R and know how to install packages:
+I typically use [R](https://www.r-project.org/) for making figure, as well as doing a bunch of data crunching when it is enabled by built-in R packages. To make a PCA, you can do something like this, assuming you are somewhat familiar with R and know how to install packages.
 
-```r
+
+#### Install necessary R packages
+
+```bash
+cran_packages <- c(
+  "vcfR",
+  "adegenet",
+  "ggrepel",
+  "tidyverse"
+)
+
+# Identify packages that are not already installed
+missing_packages <- cran_packages[
+  !vapply(cran_packages, requireNamespace, logical(1), quietly = TRUE)
+]
+
+# Install only missing packages
+if (length(missing_packages) > 0) {
+  install.packages(
+    missing_packages,
+    repos = "https://cloud.r-project.org",
+    dependencies = TRUE
+  )
+}
+
 library(vcfR)
 library(adegenet)
-library(ggrepel)
 library(tidyverse)
-setwd("/Users/adamfreedman/workspace/AncestrySnpsToPcaDemo/data")
+library(ggrepel)
+```
 
+#### set your working directory
+Obviously, change the stuff in quotes to reflect where your data are.
+
+```bash
+setwd("/Users/adamfreedman/workspace/AncestrySnpsToPcaDemo/data")
+```
+
+#### First pass at PCA
+
+```bash
 ## dogs only pca
 classdata_vcf <- read.vcfR("refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz")
 classdata_adegenet <- vcfR2genind(classdata_vcf)
@@ -391,66 +425,116 @@ classdata_adegenet <- vcfR2genind(classdata_vcf)
 classdata_impute <- scaleGen(classdata_adegenet, NA.method = "mean")  
 pca_result <- prcomp(classdata_impute, center = TRUE, scale. = FALSE)
 pca_tibble <- as_tibble(pca_result$x) %>%
-  mutate(dog_name=row.names(pca_result$x))
+  mutate(sample_name=row.names(pca_result$x))
 
-pca_plot <- pca_tibble %>% ggplot(aes(x=PC1,y=PC2,color=dog_name,label=dog_name)) +
+pca_plot <- pca_tibble %>% ggplot(aes(x=PC1,y=PC2,color=sample_name,label=sample_name)) +
   geom_point(size=3,alpha=0.6) +
   xlab("PC1") +
   ylab("PC2") +
-  geom_text_repel(aes(label=dog_name),size=3,show.legend = FALSE) +
-  guides(color = guide_legend(title = "Dog name"))
+  geom_text_repel(aes(label=sample_name),size=3,show.legend = FALSE) +
+  guides(color = guide_legend(title = "Sample name"))
 ```
+
 Which produces this:
 
-<img src="img/dogs_pca_2025.05.07.png" width="100%" height="100%"/>
+<img src="img/pcaplot_1stpass.png" width="100%" height="100%"/>
 
-### How does my dog relate to dingoes and wolves?
-There has been extensive work on dog breeds and their geographic origins ... some are seen as more "ancient", having arisen earlier in dog history, dogs like Salukis and Basenjis for instance. Most dog breeds have actually arisen in the last few hundred years ... most being not all. As you will see in a PCA of your dogs and wolves, someone else's dog don't look like everyone else's regarding their ancestry ...
+This...looks...terrible. The legend has taken up all of the space, and honestly there is a lot of extra info in the sample labels, for example:
 
-#### Merging class dog vcf and other canids
-We need to merge the vcf files together in order to generate a PCA of all of them at once. Since we have already dealt with the reference allele correction this is pretty straightforward.
+* from the PLINK files, names are duplicated (because we set the 1st 2 column names to our dog names)
+* there are prefixes such as "reference" that we don't care about and sample numbers we also don't care about.
 
-We only want the positions that are in the class dogs, so first we create a list of regions to keep in the merge:
+We can do a little R function magic to create a new "group" variable to label and color points by, and only use labels for our samples, and others of interest:
 
-```bash
-gunzip -c recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz |grep -v "#" |awk '{print $1"\t"$2}' > classdata_regions_file.txt
-```
 
-Then, we can do the merge with a vcf file from *Freedman et al. 2014, *PLoS Genetics*, for the two dogs, 3 wolves and one golden jackal from that study, that has already been compressed with bgzip. 
+#### clean up labels
 
 ```bash
-bcftools merge --regions-file classdata_regions_file.txt recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz Freedman_etal_2014_PLoSGenet_6canids.vcf.gz -O z -o classdata_Freedmandata_merged.vcf.gz
+normalize_sample_name <- function(x) {
+  x <- str_remove(
+    x,
+    regex("^reference_", ignore_case = TRUE)
+  )
+  
+  x <- str_remove(
+    x,
+    regex("^class_data_", ignore_case = TRUE)
+  )
+  
+  x <- str_remove(x, "_[0-9]+$")  # tibetan_mastiff_1 -> tibetan_mastiff
+  x <- str_replace_all(x, "-", "_")
+  
+  # Collapse names like Ida_ida or Huxley_Huxley
+  parts <- str_split(x, "_", simplify = FALSE)
+  
+  vapply(parts, function(p) {
+    if (length(p) %% 2 == 0) {
+      midpoint <- length(p) / 2
+      
+      left <- paste(p[seq_len(midpoint)], collapse = "_")
+      right <- paste(
+        p[(midpoint + 1):length(p)],
+        collapse = "_"
+      )
+      
+      if (str_to_lower(left) == str_to_lower(right)) {
+        return(left)
+      }
+    }
+    
+    paste(p, collapse = "_")
+  }, character(1))
+}
+
+#### use function to update pca output
+
+```bash
+pca_tibble <- pca_tibble %>%
+  mutate(
+    sample_id = sample_name,  # preserve original ID
+    group = normalize_sample_name(sample_id)
+  )
 ```
 
-#### PCA plot of merged canids
-Now, we can do a PCA to examine relationships between your dogs and other breed samples, and wolves ...
+#### tweak labels and plot PCA
+We want to only plot a few labels, by specifying a vector of them, and excluding all others so things don't get too crowded
 
-```r
-dogs_wolves_vcf <- read.vcfR("classdata_Freedmandata_merged.vcf.gz")
-dogs_wolves_vcf_biallelic <- dogs_wolves_vcf[is.biallelic(dogs_wolves_vcf) & !is.indel(dogs_wolves_vcf), ]
-dogs_wolves_adegenet <- vcfR2genind(dogs_wolves_vcf_biallelic)
-# replace missing values based upon mean allele frequency
-dogs_wolves_impute <- scaleGen(dogs_wolves_adegenet, NA.method = "mean")  
-pca_result <- prcomp(dogs_wolves_impute, center = TRUE, scale. = FALSE)
-pca_tibble <- as_tibble(pca_result$x) %>%
-    mutate(sample_name=row.names(pca_result$x))
+```bash
+groups_to_label <- c("tibetan_mastiff","siberian_husky","Huxley","Ida","class_data_DOG02", "class_data_DOG13", "class_data_DOG10")
 
-sample_type<-c(rep("class dog",13),"Basenji","Dingo","Israeli wolf","Croatian wolf","Chinese wolf","Golden jackal")
-pca_tibble <-pca_tibble %>% mutate(sample_type=sample_type)
-pca_tibble <- pca_tibble %>% mutate(sample_type=factor(sample_type,levels=c("class dog","Basenji","Dingo","Israeli wolf","Croatian wolf","Chinese wolf","Golden jackal")))
-sample_labels<-c("class dog","Basenji","Dingo","Israeli wolf","Croatian wolf","Chinese wolf","Golden jackal")
-merged_pca_plot <- pca_tibble %>% ggplot(aes(x=PC1,y=PC2,color=sample_type,label=sample_name)) +
-            geom_point(size=3) +
-            scale_color_manual(labels=sample_labels,values=c("darkblue", "purple","magenta", "firebrick","red","orange","yellow3")) + 
-            geom_text_repel(aes(label=sample_name),size=3,show.legend = FALSE) +
-            xlab("PC1") +
-            ylab("PC2") +
-            guides(color = guide_legend(title = "Sample type"))
-``` 
 
-...which produces:
+pca_tibble <- pca_tibble %>% mutate(
+  label = if_else(group %in% groups_to_label, group, NA_character_)
+)
 
-<img src="img/dogs_Freedmandanids_pca_2025.05.07.png" width="100%" height="100%"/>
+pca_plot_final <- pca_tibble %>% ggplot(aes(x=PC1,y=PC2,color=group)) +
+  geom_point(size=3,alpha=0.6) +
+  geom_text_repel(
+    data = pca_tibble %>% filter(!is.na(label)),
+    aes(label = label),
+    show.legend = FALSE,
+    max.overlaps = Inf,
+    point.padding = 0,
+    box.padding = 1.5,
+    force = 4,
+    force_pull = 0.15,
+    min.segment.length = 0,
+    segment.size = 0.5,
+    seed = 123
+  ) +
+  xlab("PC1") +
+  ylab("PC2") +
+  guides(color = guide_legend(title = "Sample name",ncol = 2))
+
+ggsave(pca_plot_final,file="pcaplot_final.png",width=7,height=6)
+```
+
+Which looks much better!:
+
+<img src="img/pcaplot_final.png" width="100%" height="100%"/>
+
+
+## GOTTEN THIS FAR
 
 ### Extracting allele frequencies at interesting genes
 A useful way of examining genetic variation between two populations is to look at their respective allele frequencies in genic regions thought to be resposible for phenotypic trait differences. The gene MITF plays an important role in the melanin pigmentation pathway, so we first could extract a vcf file for that region. In the *data* directory of this repository,dog_genecoordinates_table_CamFam3.1.txt, that lists the genomic cooredinates associated with particular genes, and their gene symbols. So, if we are interested in MITF, we can just do:
