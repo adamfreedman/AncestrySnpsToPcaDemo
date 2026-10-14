@@ -292,10 +292,11 @@ In our paper looking at signals of positive selection on the dog genome that too
 
 ```bash
 bcftools view -r 18:15490000-15780000 chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -o topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
+grep -v "#" topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
 ```
 
 
-#Verifying reference allele is correct
+### Verifying reference allele is correct
 In genotype array data, one can't guarantee that one allele that the allele in PLINK files assigned to the "REF" field in vcf file is in fact the reference allele in the genome. It is important to verify that it is, or fix it if it isn't before merging with data sets --such as *Freedman et al. 2016*, that are based upon aligning NGS reads to a genome, such that by definition, the REF allele is that in the genome.
 
 In the LHFPL3 region extracted above, there doesn't appear to be any indication of misassignment--it would show up as multiple lines for a genomic position with each having a different reference allele.
