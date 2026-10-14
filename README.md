@@ -337,7 +337,7 @@ The correct the reference allele in the vcf file to match what is in the genome
 
 ```bash
 bcftools norm --check-ref ws --fasta-ref GCF_000002285.3_CanFam3.1_genomic_fixed.fna \ 
-    chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -O z -o \ 
+    chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -O z -o \
     refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz > correct.log 2>&1
 ``` 
 
