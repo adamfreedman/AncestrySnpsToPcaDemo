@@ -94,7 +94,7 @@ for i in $samples; do plink  --tped ${i}.tped --tfam ${i}.tfam --make-bed --chr-
 ### Create a list of dog sample binary PLINK files 
 Why do we need to do this? Becaue in order to merge the individual sample PLINK files into one that contains the genotypes of all of the Embark dogs, we need to supply a file that lists these files.
 
-If you change the names of your dog's files to be your dog's name you would create a merge file like this:
+If you change the names of your dog's files to be your dog's name (i.e. change the values for the first two columns of the fam file to Huxley) you would create a merge file like this:
 
 ```bash
 for i in huxley ida;do awk -v val="$i" 'BEGIN { print val".bed "val".bim "val".fam" }' >> merge_list.txt
@@ -169,10 +169,10 @@ BUT ... the bim files look like this:
  
 So, the file conversion to bim/bam messed with the allele coding. Welcome to bioinformatics. There are only a small number of insertion/deletion polymorphisms and since we don't have their nucleotide sequence, it is best to remove them. Similarly, we can fix the bim files, such that, when allele 2 is an actual nucleotide and allele 1 is 0, we can replace the 0 with the allele 2 nucleotide. The bed file references these columns in composing the genotypes so when we do this fix, we will be able to ouptut proper genotypes in vcf format (below).
 
-We can use a simply python script to recode allele2 zeroes as the same as allele1:
+We can use a simply python script to recode allele2 zeroes as the same as allele1. If we are in a directory called data and the scripts/ directory lives just outside of the data directory, then do this:
 
 ```bash
-python scripts/fix_bim_alleles.py --input refpanel_plusHuxleyandIda.bim --output fixed_refpanel_plusHuxleyandIda.bim
+python ../scripts/fix_bim_alleles.py --input refpanel_plusHuxleyandIda.bim --output fixed_refpanel_plusHuxleyandIda.bim
 ```
 
 Then we can just replace the original bim with the fixed one:
@@ -233,6 +233,7 @@ plink \
   --chr-set 42 \
   --recode vcf bgz \
   --out cleanedSNPs_refpanel_plusHuxleyandIda
+```
 
 What does `recode vcf bgz` do? recode tells PLINK that you want to output a different kind of data, vcf tells it to make a vcf file, and bgz tells PLINK to compress it using a tool called *bgzip*. *bgzip is part of[htslib](https://www.htslib.org/doc/bgzip.html), and it allows for "random access" of different genomic intervals with tools designed to handle bgzip-compressed files. In fact we will such a tool right now, called [bcftools](https://samtools.github.io/bcftools/bcftools.html), which is useful for doing all sorts of filtering, manipulation, and information extraction from vcf files. What are we going to do? Remove sites with > 2 alleles.
 
