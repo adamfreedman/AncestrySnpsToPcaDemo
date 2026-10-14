@@ -547,8 +547,10 @@ grep MITF dog_genecoordinates_table_CamFam3.1.txt
 In many cases, we will want to expand the window of interest up and downstream of the gene boundaries, so as to try and capture variation in UTRs or other regulatory sequences. As a demonstration, we can arbitrarily expand the window by subtracting 20kb from the start coordinate and add 20kb to the end coordinate. To extract a vcf file of this region that is non compressed, we do:
 
 ```bash
-bcftools view -r 20:21592927-21870578 classdata_Freedmandata_merged.vcf.gz > MITF_genotypes.vcf
+bcftools view -r 20:21772147-21873545 refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz > MITF_genotypes.vcf
 ```
+
+There are three SNPs on the array at this position
 
 We can then use a custom python script, GetAltAlleleFreqsFor2PopsFromVcf.py, in the scripts directory that, for two pre-defined "populations", meaning lists of sample names in the vcf:
 * for each SNP in the vcf file (in our case the one for MITF), calculate the frequency of the alternative allele for each population and write them to a file, and if there are no genotypes for a population, the frequency gets reported as "NA".
