@@ -524,7 +524,7 @@ pca_plot_final <- pca_tibble %>% ggplot(aes(x=PC1,y=PC2,color=group)) +
   ) +
   xlab("PC1") +
   ylab("PC2") +
-  guides(color = guide_legend(title = "Sample name",ncol = 2))
+  guides(color = guide_legend(title = "Sample name"))
 
 ggsave(pca_plot_final,file="pcaplot_final.png",width=7,height=6)
 ```
