@@ -369,7 +369,6 @@ and re-extract our site of interest:
 bcftools view -r 18:15490000-15780000 refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -o topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
 ```
 
-# HAVEN'T UPDATED THE BELOW
 
 ### visualizing genetic structure among your dogs: PCA
 Principal components analysis (PCA) has a long history of use in quantifying and visualizing population structure. There has been much debate over what the observed patterns mean, and what underlying evolutionary processes produce them. Needless to say, PCA can be a reasonable good first peek.
@@ -381,14 +380,14 @@ library(vcfR)
 library(adegenet)
 library(ggrepel)
 library(tidyverse)
-setwd("/Users/adamfreedman/Dropbox/seminar_talks/CUNY/")
+setwd("/Users/adamfreedman/workspace/AncestrySnpsToPcaDemo/data")
 
 ## dogs only pca
-dogs_vcf <- read.vcfR("recleanmulti_refcorrected_chrfiltered_noUn_dogs_biallelic_snps.merged.vcf.gz")
-dogs_adegenet <- vcfR2genind(dogs_vcf)
+classdata_vcf <- read.vcfR("refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz")
+classdata_adegenet <- vcfR2genind(classdata_vcf)
 # replace missing values based upon mean allele frequency
-dogs_impute <- scaleGen(dogs_adegenet, NA.method = "mean")  
-pca_result <- prcomp(dogs_impute, center = TRUE, scale. = FALSE)
+classdata_impute <- scaleGen(classdata_adegenet, NA.method = "mean")  
+pca_result <- prcomp(classdata_impute, center = TRUE, scale. = FALSE)
 pca_tibble <- as_tibble(pca_result$x) %>%
   mutate(dog_name=row.names(pca_result$x))
 
