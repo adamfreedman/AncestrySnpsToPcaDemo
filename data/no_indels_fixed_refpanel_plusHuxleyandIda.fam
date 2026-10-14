@@ -1,6 +1,8 @@
 class_data DOG02 0 0 2 -9
 class_data DOG10 0 0 1 -9
 class_data DOG13 0 0 1 -9
+Huxley Huxley 0 0 1 -9
+Ida Ida 0 0 2 -9
 reference bulldog_french_1 0 0 1 -9
 reference central_african_village_dog_1 0 0 2 -9
 reference coyote_1 0 0 1 -9
@@ -33,5 +35,3 @@ reference poodle_1 0 0 2 -9
 reference portuguese_podengo_pequeno_1 0 0 2 -9
 reference siberian_husky_1 0 0 2 -9
 reference tibetan_mastiff_1 0 0 2 -9
-WG0714122-DNA_A10_31250960239597 Ida 0 0 2 -9
-WG0714125-DNA_D06_31250960227040 Huxley 0 0 1 -9
