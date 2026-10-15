@@ -539,9 +539,11 @@ Which looks much better!:
 ### Extracting allele frequencies at interesting genes
 A useful way of examining genetic variation between two populations is to look at their respective allele frequencies in genic regions thought to be resposible for phenotypic trait differences. The gene MITF plays an important role in the melanin pigmentation pathway, so we first could extract a vcf file for that region. In the *data* directory of this repository,dog_genecoordinates_table_CamFam3.1.txt, that lists the genomic cooredinates associated with particular genes, and their gene symbols. So, if we are interested in MITF, we can just do:
 
+
+## NEED TO REMAKE THIS TABLE
 ```bash
 grep MITF dog_genecoordinates_table_CamFam3.1.txt
-20	21612927	21870578	ID=gene:ENSCAFG00000006496;Name=MITF;biotype=protein_coding;description=melanocyte inducing transcription factor [Source:VGNC Symbol%3BAcc:VGNC:43248];gene_id=ENSCAFG00000006496;logic_name=ensembl;version=5
+
 ```
 
 In many cases, we will want to expand the window of interest up and downstream of the gene boundaries, so as to try and capture variation in UTRs or other regulatory sequences. As a demonstration, we can arbitrarily expand the window by subtracting 20kb from the start coordinate and add 20kb to the end coordinate. To extract a vcf file of this region that is non compressed, we do:
