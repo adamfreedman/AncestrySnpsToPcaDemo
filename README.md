@@ -543,7 +543,7 @@ which reports:
 * F — inbreeding coefficient
 
 
-We can calculate the observed heterozygosity as *(N_SITES-O(HOM))/N_SITES, and add it to the original table, redirecting it to a new file, using `awk`:
+We can calculate the observed heterozygosity as *(N_SITES-O(HOM))/N_SITES*, and add it to the original table, redirecting it to a new file, using `awk`:
 
 ```bash
 awk 'BEGIN {FS=OFS="\t"} NR==1 {print $0, "H_OBS"; next} \
