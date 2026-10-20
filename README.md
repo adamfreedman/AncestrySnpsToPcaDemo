@@ -238,39 +238,7 @@ plink \
 What does `recode vcf bgz` do? recode tells PLINK that you want to output a different kind of data, vcf tells it to make a vcf file, and bgz tells PLINK to compress it using a tool called *bgzip*. *bgzip is part of[htslib](https://www.htslib.org/doc/bgzip.html), and it allows for "random access" of different genomic intervals with tools designed to handle bgzip-compressed files. In fact we will such a tool right now, called [bcftools](https://samtools.github.io/bcftools/bcftools.html), which is useful for doing all sorts of filtering, manipulation, and information extraction from vcf files. What are we going to do? Remove sites with > 2 alleles.
 
 
-#### Remove multi-allelic sites
-Mult-allelic sites are often enriched for erroneous genotypes, with such errors arising from a number of factors, including local structural variation, and a particular genotyping algorithm incorrectly mistaking sequencing errors as alternative alleles. Furthermore, some downstream data analysis tools assume that sites are bi-allelic, i.e. having only two alleles. A similar logic can be applied to variants that are not simple nucleotide substitutions, such as an A for a G. Insertions and deletions, aka "indels" are cases where a sample has extra nucleotides inserted, or bases in the reference genome assembly that are missing. Indels are much harder to call correctly, and they are typically not the type of variant that is expected by downstream tools. Thus, it is normally useful to filter them out. 
-
-We can remove multi-allelic and indel sites with *bcftools* as follows:
-
-```bash
-bcftools view -m2 -M2 -v snps cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -Oz -o biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
 ```
-* `-m2 -M2` tells bcftools to only keep sites with a minimum and maximum of 2 alleles
-* `-v snps` indicates to only keep single nucleotide polymorphisms (SNPs), excluding insertions, deletions, and other structural variants
-
-Technically, we shouldn't need the `-v` as we already removed the I/D sites ... which were incorrectly formatted and likely wouldn't get picked up by bcftools. In a proper vcf files, for an indel site you'd see a list of alleles like this:
-
-
-```bash
-A,ACTG
-```
-
-To see how many records were eliminated we need to count the sites kept in the output, but to compare, we need to create bcftools indexes for the pre and post multi-allelic site removal vcfs:
-
-```bash
-bcftools index -t cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
-bcftools index -t biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
-```
-
-Then, count records:
-
-```bash
-bcftools view -H -v snps cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz | wc -l
-bcftools view -H -v snps biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz |wc -l
-```
-
-Guess what? There were no multi-allelic sites so the line counts are the same. Fwiw ... when we previously used data from Ancestry, there were such sites.
 
 
 #### Removing ambiguously named chromosomes
@@ -279,97 +247,13 @@ For SNP calling, we don't want to use sites for which, for some samples, there a
 
 
 ```bash
-bcftools view --targets ^39,40,41,42 biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -O z -o chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
-bcftools index chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
+bcftools view --targets ^39,40,41,42 cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -O z -o chrfiltered_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
+bcftools index chrfiltered_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
 ```
 
 * `targets ^39,40,41,42` tells bcftools to exlude SNPS on those chromosomes, the `^` means "not". If you remove it then you would only retain SNPs on those chromosomes
 * as you might guess, you don't need to put a space between `-O` and `z` (we didn't in the last command), it's up to you which you think is more readable ... but .. in a long command line, the spaces can help you track down mistakes
 
-### Looking for variation in genes of interest.
-In our paper looking at signals of positive selection on the dog genome that took place early in domestication, [Freedman et al, 2016 PLoS Genetics](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1005851), the region with the strongest selection signal is centered on a gene called LHFPL3, a gene involved in brain function. If we got to Figure 5 in that paper, we can get the coordinates of that hit (the top row in the figure), and extract SNPs in our data (if they exist): 
-
-
-```bash
-bcftools view -r 18:15490000-15780000 chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -o topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
-grep -v "#" topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
-```
-
-
-### Verifying reference allele is correct
-In genotype array data, one can't guarantee that one allele that the allele in PLINK files assigned to the "REF" field in vcf file is in fact the reference allele in the genome. It is important to verify that it is, or fix it if it isn't before merging with data sets --such as *Freedman et al. 2016*, that are based upon aligning NGS reads to a genome, such that by definition, the REF allele is that in the genome.
-
-In the LHFPL3 region extracted above, there doesn't appear to be any indication of misassignment--it would show up as multiple lines for a genomic position with each having a different reference allele.
-
-What we do see if we do a `grep` to remove some lines in the header:
-
-```bash
-grep -v "contig" topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
-##fileformat=VCFv4.2
-##FILTER=<ID=PASS,Description="All filters passed">
-##fileDate=20261006
-##source=PLINKv1.9
-##INFO=<ID=PR,Number=0,Type=Flag,Description="Provisional reference allele, may not be based on real reference genome">
-##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
-##bcftools_viewVersion=1.23+htslib-1.23
-##bcftools_viewCommand=view -m2 -M2 -v snps -Oz -o biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz; Date=Tue Oct  6 17:11:58 2026
-##bcftools_viewCommand=view --targets ^39,40,41,42 -O z -o chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz; Date=Thu Oct  8 12:38:32 2026
-##bcftools_viewCommand=view -r 18:15490000-15780000 -o topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz; Date=Thu Oct  8 12:49:27 2026
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	class_data_DOG02	class_data_DOG10	class_data_DOG13	reference_bulldog_french_1	reference_central_african_village_dog_1	reference_coyote_1	reference_coyote_2	reference_coyote_3	reference_coyote_4	reference_coyote_5	reference_coyote_6	reference_coyote_7	reference_coyote_8	reference_coyote_9	reference_coyote_10	reference_dominica_village_dog_1	reference_german_shepherd_dog_1	reference_german_shorthaired_pointer_1	reference_golden_retriever_1	reference_gray_wolf_1	reference_gray_wolf_2	reference_gray_wolf_3	reference_gray_wolf_4	reference_gray_wolf_5	reference_gray_wolf_6	reference_gray_wolf_7	reference_gray_wolf_reference_gray_wolf_9	reference_gray_wolf_10	reference_great_pyrenees_1	reference_ibizan_hound_1	reference_poodle_1	reference_portuguese_podengo_pequeno_1	reference_siberian_husky_1	reference_tibetan_mastiff_1	WG0714122-DNA_A10_31250960239597_Ida	WG0714125-DNA_D06_31250960227040_Huxley
-18	15504207	TIGRP2P240252_rs9136342	A	G	.	.	PR	GT	1/1	0/1	1/1	1/1	1/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	1/1	0/1	1/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	1/1	1/1	1/1	0/1	0/1	1/1	1/1
-18	15513954	BICF2P629522	A	G	.	.	PR	GT	0/0	0/1	0/1	0/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/1	0/0	0/0	0/0	0/1	0/0
-18	15605885	G1017f51S308	A	G	.	.	PR	GT	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/0	0/0
-18	15764403	chr18_15764403	G	A	.	.	PR	GT	1/1	0/1	0/0	0/1	1/1	0/1	0/1	1/1	1/1	0/1	0/0	1/1	0/0	0/0	0/1	1/1	0/1	1/1	0/1	0/0	0/1	0/0	0/0	0/0	0/1	0/0	0/0	0/0	0/0	1/1	1/1	0/1	0/0	1/1	1/1	1/1	1/1
-```
-
-Four bi-allelic SNPs are present in the Embark data in this region.
-
-Anyway, lets check to make sure there is no wonkiness in allele assignment:
-
-
-```bash
-samtools faidx GCF_000002285.3_CanFam3.1_genomic_fixed.fna
-```
-
-where the above genome fasta is "fixed" because proper chromosome names that match the genotyping data replace the scaffold names.
-
-The correct the reference allele in the vcf file to match what is in the genome
-
-```bash
-bcftools norm --check-ref ws --fasta-ref GCF_000002285.3_CanFam3.1_genomic_fixed.fna \
-    chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -O z -o \
-    refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz > correct.log 2>&1
-``` 
-
-correct.log reads:
-
-```bash
-Lines   total/split/joined/realigned/mismatch_removed/dup_removed/skipped:	79283/0/0/0/0/0/0
-REF/ALT total/modified/added:  	79283/18377/37090
-```
-
-which means:
-
-* there are 79283 sites
-* 18377 had the REF field corrected
-* 37090 had an allele added
-  * this means there were homozygous sites that were homozygous for an allele different from the reference nucleotide in the genome
-
-
-**There were no other abnormalities that we would need to remedy, e.g. merging genotypes from different samples that got separate lines in the vcf for the same genomic position.
-
-
-Now ... let's index the new genotype file, remove the new multi-allelic sites,  and try to look at nocturnin again!
-
-```bash
-bcftools index refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
-```
-
-and re-extract our site of interest:
-
-```
-bcftools view -r 18:15490000-15780000 refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -o topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
-```
 
 
 ### visualizing genetic structure among your dogs: PCA
@@ -419,7 +303,7 @@ setwd("/Users/adamfreedman/workspace/AncestrySnpsToPcaDemo/data")
 
 ```bash
 ## dogs only pca
-classdata_vcf <- read.vcfR("refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz")
+classdata_vcf <- read.vcfR("chrfiltered_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz")
 classdata_adegenet <- vcfR2genind(classdata_vcf)
 # replace missing values based upon mean allele frequency
 classdata_impute <- scaleGen(classdata_adegenet, NA.method = "mean")  
@@ -534,28 +418,50 @@ Which looks much better!:
 <img src="img/pcaplot_final.png" width="100%" height="100%"/>
 
 
-## GOTTEN THIS FAR
-
 ### Extracting allele frequencies at interesting genes
-A useful way of examining genetic variation between two populations is to look at their respective allele frequencies in genic regions thought to be resposible for phenotypic trait differences. The gene MITF plays an important role in the melanin pigmentation pathway, so we first could extract a vcf file for that region. In the *data* directory of this repository,dog_genecoordinates_table_CamFam3.1.txt, that lists the genomic cooredinates associated with particular genes, and their gene symbols. So, if we are interested in MITF, we can just do:
+A useful way of examining genetic variation between two populations is to look at their respective allele frequencies in genic regions thought to be resposible for phenotypic trait differences. In cases where positive selection has acted on a portion of the genome in a particular descendant lineage, we would expect to see a couple of things:
+
+* reduced diversity relative to the same region in the ancestral lineage
+* an allele frequency that differs from the ancestral lineage
+  * in the most extreme case, the allele at very small frequency in the ancestral lineage might be fixed in the lineage where selection occurred.
+  
+Replace the words "ancestral" with "wolves" and "descendant" with "dogs", and you have a rough approximation of what probably happened at many regions of the genome as dogs diverged phenotypically from an ancestral wolf lineage.
 
 
-## NEED TO REMAKE THIS TABLE
+In our paper looking at signals of positive selection on the dog genome that took place early in domestication, [Freedman et al, 2016 PLoS Genetics](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1005851), the region with the strongest selection signal is centered on a gene called LHFPL3, a gene involved in brain function. If we got to Figure 5 in that paper, we can get the coordinates of that hit (the top row in the figure), and extract SNPs in our data (if they exist): 
+
+
 ```bash
-grep MITF dog_genecoordinates_table_CamFam3.1.txt
-
+bcftools view -r 18:15490000-15780000 chrfiltered_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -o topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
+grep -v "#" topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
 ```
 
-In many cases, we will want to expand the window of interest up and downstream of the gene boundaries, so as to try and capture variation in UTRs or other regulatory sequences. As a demonstration, we can arbitrarily expand the window by subtracting 20kb from the start coordinate and add 20kb to the end coordinate. To extract a vcf file of this region that is non compressed, we do:
+As it turns out, we do have some SNPs in the Embark data that overlap with this region:
 
 ```bash
-bcftools view -r 20:21772147-21873545 refcorrected_chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz > MITF_genotypes.vcf
+grep -v "contig" topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##fileDate=20261006
+##source=PLINKv1.9
+##INFO=<ID=PR,Number=0,Type=Flag,Description="Provisional reference allele, may not be based on real reference genome">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##bcftools_viewVersion=1.23+htslib-1.23
+##bcftools_viewCommand=view -m2 -M2 -v snps -Oz -o biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz; Date=Tue Oct  6 17:11:58 2026
+##bcftools_viewCommand=view --targets ^39,40,41,42 -O z -o chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz; Date=Thu Oct  8 12:38:32 2026
+##bcftools_viewCommand=view -r 18:15490000-15780000 -o topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf chrfiltered_biallelic_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz; Date=Thu Oct  8 12:49:27 2026
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	class_data_DOG02	class_data_DOG10	class_data_DOG13	reference_bulldog_french_1	reference_central_african_village_dog_1	reference_coyote_1	reference_coyote_2	reference_coyote_3	reference_coyote_4	reference_coyote_5	reference_coyote_6	reference_coyote_7	reference_coyote_8	reference_coyote_9	reference_coyote_10	reference_dominica_village_dog_1	reference_german_shepherd_dog_1	reference_german_shorthaired_pointer_1	reference_golden_retriever_1	reference_gray_wolf_1	reference_gray_wolf_2	reference_gray_wolf_3	reference_gray_wolf_4	reference_gray_wolf_5	reference_gray_wolf_6	reference_gray_wolf_7	reference_gray_wolf_reference_gray_wolf_9	reference_gray_wolf_10	reference_great_pyrenees_1	reference_ibizan_hound_1	reference_poodle_1	reference_portuguese_podengo_pequeno_1	reference_siberian_husky_1	reference_tibetan_mastiff_1	WG0714122-DNA_A10_31250960239597_Ida	WG0714125-DNA_D06_31250960227040_Huxley
+18	15504207	TIGRP2P240252_rs9136342	A	G	.	.	PR	GT	1/1	0/1	1/1	1/1	1/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	1/1	0/1	1/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	1/1	1/1	1/1	0/1	0/1	1/1	1/1
+18	15513954	BICF2P629522	A	G	.	.	PR	GT	0/0	0/1	0/1	0/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/1	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/1	0/0	0/0	0/0	0/1	0/0
+18	15605885	G1017f51S308	A	G	.	.	PR	GT	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/0	0/1	0/0	0/0
+18	15764403	chr18_15764403	G	A	.	.	PR	GT	1/1	0/1	0/0	0/1	1/1	0/1	0/1	1/1	1/1	0/1	0/0	1/1	0/0	0/0	0/1	1/1	0/1	1/1	0/1	0/0	0/1	0/0	0/0	0/0	0/1	0/0	0/0	0/0	0/0	1/1	1/1	0/1	0/0	1/1	1/1	1/1	1/1
 ```
 
 There are three SNPs on the array at this position
 
 We can then use a custom python script, GetAltAlleleFreqsFor2PopsFromVcf.py, in the scripts directory that, for two pre-defined "populations", meaning lists of sample names in the vcf:
-* for each SNP in the vcf file (in our case the one for MITF), calculate the frequency of the alternative allele for each population and write them to a file, and if there are no genotypes for a population, the frequency gets reported as "NA".
+
+* for each SNP in the vcf file, calculate the frequency of the alternative allele for each population and write them to a file, and if there are no genotypes for a population, the frequency gets reported as "NA".
 * In that same file, print the samples comprising each population
 * print to the screen the mean alternative allele frequency across sites in the vcf, by population
 * print to the screen the number of sites for each population from which frequencies could be calculated
@@ -563,9 +469,14 @@ We can then use a custom python script, GetAltAlleleFreqsFor2PopsFromVcf.py, in 
 
 The allele frequency correlation is interesting because, while mean diversity in a population is very much shaped by demographic history, allele frequencies at particular loci may diverge not just due to random sampling (i.e. genetic drift) but also by divergent natural selection. Particularly for candidate gene regions of interest, the decoupling of allele frequencies between populations at a site-wise resolution may indicate selection is at work.
 
-To run the script on the MITF gene interval vcf, one would do:
+
+
+
+To run the script on the region bounding the LHFPL3 gene interval vcf, one would do:
 ```bash
-python ../scripts/GetAltAlleleFreqsFor2PopsFromVcf.py -v MITF_genotypes.vcf -pop1 leo,dice,Luna,Bambino,PeppersSisterAbby,Logan,Pebbles,Marisol,Mickey,milly,Pepper,doom,Edna -pop2 IsraeliWolf,CroatianWolf,ChineseWolf -o MITF_allelefrq_classdogsVswolves.txt
+dogs=$(paste -sd, dog_ids.txt)
+wolves=$(paste -sd, wolf_ids.txt)
+python ../scripts/GetAltAlleleFreqsFor2PopsFromVcf.py -v topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf -pop1 $dogs -pop2 $wolves -o LHFPL3__allelefrq_classdogsVswolves.txt
 ```
 
 where:
@@ -574,46 +485,76 @@ where:
 * `pop2` is a comma separated list of the sample ids for population 2
 * `-o` is the name of the output allele frequency file we are writing
 
-These are the first few lines of the output file:
+Note we did a little bit of command line magic, loading up ids for dogs and wolves that are stored in two text files, where there is one sample id (exactly as it occurs in the vcf file) per line. Note, we could have done the same thing with dogs and coyotes, but as coyotes aren't the ancestral lineages--and in fact have a very complicated evolutionary history involving admixture with dogs and wolves--we aren't going to do that!
+
+
+These are the lines of the output file:
 
 ```bash
-pop1 is leo,dice,Luna,Bambino,PeppersSisterAbby,Logan,Pebbles,Marisol,Mickey,milly,Pepper,doom,Edna
-pop2 is IsraeliWolf,CroatianWolf,ChineseWolf
-chromosome	position	pop1_altfrq	pop2_altfrq
-20	21594400	1.0	1.0
-20	21596545	0.0	0.0
-20	21597316	0.6923076923076923	0.0
+pop1 is class_data_DOG02,class_data_DOG10,class_data_DOG13,Huxley_Huxley,Ida_Ida,reference_bulldog_french_1,reference_central_african_village_dog_1,reference_dominica_village_dog_1,reference_german_shepherd_dog_1,reference_german_shorthaired_pointer_1,reference_golden_retriever_1,reference_great_pyrenees_1,reference_ibizan_hound_1,reference_poodle_1,reference_portuguese_podengo_pequeno_1,reference_siberian_husky_1,reference_tibetan_mastiff_1
+pop2 is reference_gray_wolf_1,reference_gray_wolf_2,reference_gray_wolf_3,reference_gray_wolf_4,reference_gray_wolf_5,reference_gray_wolf_6,reference_gray_wolf_7,reference_gray_wolf_8,reference_gray_wolf_9,reference_gray_wolf_10
+chromosome      position        pop1_altfrq     pop2_altfrq
+18      15504207        0.6470588235294118      0.0
+18      15513954        1.0     1.0
+18      15605885        0.0     0.0
+18      15764403        0.4117647058823529      1.0
 ```
-
-and what is printed to the screen is:
 
 ```bash
-number of observable pop1 alt freqs = 82
-mean pop1 alt frq = 0.2758599124452783
+number of observable pop1 alt freqs = 4
+mean pop1 alt frq = 0.5147058823529411
 
-number of observable pop2 alt freqs = 65
-mean pop2 alt frq = 0.2717948717948718
+number of observable pop2 alt freqs = 4
+mean pop2 alt frq = 0.5
 
-allele frequency correlation between callable sites = PearsonRResult(statistic=0.43604269296736553, pvalue=0.0002825576062169318)
+allele frequency correlation between callable sites = PearsonRResult(statistic=np.float64(0.5259237061407777), pvalue=np.float64(0.47407629385922245))
 ```
+
+Two of the four polymorphic sites show polarized allele frequencies, but, surprisingly, there is higher diversity in the dogs at these sites: intermediate allele frequencies indicate that both alleles are present at moderate frequencies, but the sites are fixed in wolves. Also, the mean alternative allele frequencies across sites is very similar. I would not place much stock in the correlation test as there are only 4 sites on which it is calculated. It should be noted that while these allele frequencies don't square with a signal of positive selection on the dog lineages, there are only 4 sites, but of thousands of sites in this genomic region that were assayed in the original study. Furthermore, the original study focused on ancient breeds (Basenji and Dingo) that were evolutionarily closer to early dogs that diverged from wolves .... and, the modern breeds in the reference pane and our admixed pets are a hodgepodge of various artificial selection regimes.
+
+
+If you want to explore variation after class, you can look for variation at SNPs in genes found in a table I extracted from the dog genome annotation for the same (CanFam3.1) version of the genome. If you are interested, for example, in the gene MITF, which is a pigmentation gene you would do this 
+
+```
+grep MITF dog_genecoordinates_table_CamFam3.1.txt
+```
+
+Then, you could build your own bcftools query. In many cases, you will want to expand the window of interest up and downstream of the gene boundaries, so as to try and capture variation in UTRs or other regulatory sequences.So, you might subtract 20kb from the start coordinate of a gene, and add 20kb to the end coordinate when you build your bcftools query
+
 
 #### Calculating sample-level heterozygosity
 Heterozygosity estimates across a region of interest are another useful metric, as diversity can be reduced as a result of positive selection. Calculating estimates with `bcftools` is not trivial without doing a bunch more data manipulation. But ... the older [vcftools](https://vcftools.github.io/index.html) can generated such metrics very quickly. To do this, do:
 
 ```bash
-vcftools --gzvcf classdata_Freedmandata_merged.vcf.gz --het --out allsites
+vcftools --gzvcf chrfiltered_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz --het --out allsites
 ```
 This produced a file *allsites.het*, as `--out` specifies the output file prefix.
 
 The first few lines of the output file are:
 ```bash
-INDV	O(HOM)	E(HOM)	N_SITES	F
-leo	409563	356812.1	552461	0.26962
-dice	378604	358193.1	554555	0.10395
-Luna	377899	358791.5	555499	0.09714
-Bambino	389936	358325.5	554792	0.16090
+INDV    O(HOM)  E(HOM)  N_SITES F
+class_data_DOG02        55750   49736.6 78329   0.21031
+class_data_DOG10        49221   49739.2 78331   -0.01813
+class_data_DOG13        54781   49735.6 78329   0.17645
+Huxley_Huxley   58020   49787.3 78441   0.28732
 ```
 
-which reports, per sample, the observed heterozygosity, the expected heterozygosity, the number of sites used in the calculations, and the inbreeding coefficient *F*.
+which reports:
+
+* INDV — sample ID.
+* O(HOM) — number of included sites where that sample’s genotype is homozygous.
+* E(HOM) — expected number of homozygous genotypes, based on allele frequencies across the samples in the VCF.
+* N_SITES — number of included sites with a non-missing, diploid genotype for that sample.
+* F — inbreeding coefficient
+
+
+We can calculate the observed heterozygosity as *(N_SITES-O(HOM))/N_SITES, and add it to the original table, redirecting it to a new file, using `awk`:
+
+```bash
+awk 'BEGIN {FS=OFS="\t"} NR==1 {print $0, "H_OBS"; next} \
+     {print $0, ($4-$2)/$4}' allsites.het > allsites_obshet_table.txt
+```
 
 **NOTE**: if you use one of the region files you generated with *bcftools* using the command line a bit above this, because it outputs uncompressed vcf format, you need to change the `--gzvcf` switch in the *vcftools* command line to `--vcf`. 
+
+
