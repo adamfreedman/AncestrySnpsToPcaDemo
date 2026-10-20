@@ -550,6 +550,23 @@ awk 'BEGIN {FS=OFS="\t"} NR==1 {print $0, "H_OBS"; next} \
      {print $0, ($4-$2)/$4}' allsites.het > allsites_obshet_table.txt
 ```
 
+If we look at the file, we can now see an H_OBS column added on to each row
+
+```bash
+head allsites_obshet_table.txt 
+INDV	O(HOM)	E(HOM)	N_SITES	F	H_OBS
+class_data_DOG02	55750	49736.6	78329	0.21031	0.288258
+class_data_DOG10	49221	49739.2	78331	-0.01813	0.371628
+class_data_DOG13	54781	49735.6	78329	0.17645	0.300629
+Huxley_Huxley	58020	49787.3	78441	0.28732	0.260336
+Ida_Ida	49348	49791.5	78449	-0.01548	0.370954
+reference_bulldog_french_1	56129	49745.2	78341	0.22324	0.28353
+reference_central_african_village_dog_1	56109	49745.3	78341	0.22254	0.283785
+reference_coyote_1	65330	49660.6	78204	0.54897	0.164621
+reference_coyote_2	61427	49690.6	78252	0.41092	0.21501
+```
+
+
 **NOTE**: if you use one of the region files you generated with *bcftools* using the command line a bit above this, because it outputs uncompressed vcf format, you need to change the `--gzvcf` switch in the *vcftools* command line to `--vcf`. 
 
 
