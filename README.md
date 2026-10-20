@@ -511,7 +511,8 @@ Two of the four polymorphic sites show polarized allele frequencies, but, surpri
 If you want to explore variation after class, you can look for variation at SNPs in genes found in a table I extracted from the dog genome annotation for the same (CanFam3.1) version of the genome. If you are interested, for example, in the gene MITF, which is a pigmentation gene you would do this 
 
 ```
-grep MITF dog_genecoordinates_table_CamFam3.1.txt
+grep MITF CanFam3.1_gene_coordinates.tsv
+20	21772147	21873545	MITF
 ```
 
 Then, you could build your own bcftools query. In many cases, you will want to expand the window of interest up and downstream of the gene boundaries, so as to try and capture variation in UTRs or other regulatory sequences.So, you might subtract 20kb from the start coordinate of a gene, and add 20kb to the end coordinate when you build your bcftools query
