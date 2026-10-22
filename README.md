@@ -242,14 +242,15 @@ plink \
   --out cleanedSNPs_refpanel_plusHuxleyandIda
 ```
 
-What does `recode vcf bgz` do? recode tells PLINK that you want to output a different kind of data, vcf tells it to make a vcf file, and bgz tells PLINK to compress it using a tool called *bgzip*. *bgzip is part of[htslib](https://www.htslib.org/doc/bgzip.html), and it allows for "random access" of different genomic intervals with tools designed to handle bgzip-compressed files. In fact we will such a tool right now, called [bcftools](https://samtools.github.io/bcftools/bcftools.html), which is useful for doing all sorts of filtering, manipulation, and information extraction from vcf files. What are we going to do? Remove sites with > 2 alleles.
+What does `recode vcf bgz` do? recode tells PLINK that you want to output a different kind of data, vcf tells it to make a vcf file, and bgz tells PLINK to compress it using a tool called *bgzip*. *bgzip is part of [htslib](https://www.htslib.org/doc/bgzip.html), and it allows for "random access" of different genomic intervals with tools designed to handle bgzip-compressed files. In fact we will such a tool right now, called [bcftools](https://samtools.github.io/bcftools/bcftools.html), which is useful for doing all sorts of filtering, manipulation, and information extraction from vcf files. Next, we are going to remove a subset of the chromosomes that aren't useful for our downstream analyses ...
 
 
 #### Removing ambiguously named chromosomes
 For SNP calling, we don't want to use sites for which, for some samples, there are not two chromosome copies, e.g. males don't have two X chromosomes, and females, and the mitochondrial chromosome is haploid. Remember that chr 39-42 correspond to X, Y, pseudoautomsomal region of X and mtDNA. We want to exclude these before we do any analysis
 
 ```bash
-bcftools view --targets ^39,40,41,42 cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz -O z -o chrfiltered_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
+bcftools view --targets ^39,40,41,42 cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz \
+         -O z -o chrfiltered_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
 bcftools index chrfiltered_cleanedSNPs_refpanel_plusHuxleyandIda.vcf.gz
 ```
 
