@@ -462,17 +462,20 @@ grep -v "contig" topcandidateregion_LHFPL3_Embarkrefs_plus_classdogs.vcf
 
 There are three SNPs on the array at this position
 
+
+It is interesting to look at patterns of diversity at these SNPs, both in terms of minor allele frequency and overall nucleotide diversity within dogs and wolves.
+
 We can then use a custom python script, GetAltAlleleFreqsFor2PopsFromVcf.py, in the scripts directory that, for two pre-defined "populations", meaning lists of sample names in the vcf:
 
-* for each SNP in the vcf file, calculate the frequency of the alternative allele for each population and write them to a file, and if there are no genotypes for a population, the frequency gets reported as "NA".
-* In that same file, print the samples comprising each population
-* print to the screen the mean alternative allele frequency across sites in the vcf, by population
-* print to the screen the number of sites for each population from which frequencies could be calculated
-* to see if allele frequencies are correlated on a site-wise basis, print to the screen the pearson's correlation coefficient across sites for which allele frequencies could be calculated for both populations.
-
-The allele frequency correlation is interesting because, while mean diversity in a population is very much shaped by demographic history, allele frequencies at particular loci may diverge not just due to random sampling (i.e. genetic drift) but also by divergent natural selection. Particularly for candidate gene regions of interest, the decoupling of allele frequencies between populations at a site-wise resolution may indicate selection is at work.
-
-
+* for each SNP in the vcf file, report:
+  * chromosome
+  * position
+  * population 1 minor allele frequency
+  * population 2 minor allele frequency
+  * absolutee diference in minor allele frequency
+  * population 1 nucleotide diversity (phi)
+  * population 2 nucleotide diversity (phi)
+  * population 1 phi - population 2 phi
 
 
 To run the script on the region bounding the LHFPL3 gene interval vcf, one would do:
@@ -494,27 +497,18 @@ Note we did a little bit of command line magic, loading up ids for dogs and wolv
 These are the lines of the output file:
 
 ```bash
-pop1 is class_data_DOG02,class_data_DOG10,class_data_DOG13,Huxley_Huxley,Ida_Ida,reference_bulldog_french_1,reference_central_african_village_dog_1,reference_dominica_village_dog_1,reference_german_shepherd_dog_1,reference_german_shorthaired_pointer_1,reference_golden_retriever_1,reference_great_pyrenees_1,reference_ibizan_hound_1,reference_poodle_1,reference_portuguese_podengo_pequeno_1,reference_siberian_husky_1,reference_tibetan_mastiff_1
-pop2 is reference_gray_wolf_1,reference_gray_wolf_2,reference_gray_wolf_3,reference_gray_wolf_4,reference_gray_wolf_5,reference_gray_wolf_6,reference_gray_wolf_7,reference_gray_wolf_8,reference_gray_wolf_9,reference_gray_wolf_10
-chromosome      position        pop1_altfrq     pop2_altfrq
-18      15504207        0.6470588235294118      0.0
-18      15513954        1.0     1.0
-18      15605885        0.0     0.0
-18      15764403        0.4117647058823529      1.0
+chromosome	position	pop1_pooled_minor_frq	pop2_pooled_minor_frq	abs_minor_frq_diff	pop1_phi	pop2_phi	phi_diff_pop1_minus_pop2
+18	15504207	0.17647058823529413	1.0	0.8235294117647058	0.2994652406417112	0.0	0.2994652406417112
+18	15513954	0.23529411764705882	0.0	0.23529411764705882	0.37076648841354726	0.0	0.37076648841354726
+18	15605885	0.029411764705882353	0.0	0.029411764705882353	0.058823529411764705	0.0	0.058823529411764705
+18	15764403	0.7352941176470589	0.1	0.6352941176470589	0.40106951871657753	0.18947368421052632	0.2115958345060512
 ```
 
-```bash
-number of observable pop1 alt freqs = 4
-mean pop1 alt frq = 0.5147058823529411
+The minor allele frequency difference is useful to report, to understand allelic divergence, but in the context of our data, it is not as informative as it could be if we had information on what the ancestral nucleotide was at the position. If we knew the ancestral allele in wolves, we could look at the derived allele frequency (instead of the minor allele frequency, i.e. the one that is least frequent across dogs and wolves combined). In that case, we'd expect derived allele frequencies to be elevated in dogs. Surprisingly, nucleotide diversity is consistently greater in dogs at these sites. Why might this be? A few reasons come to mind:
 
-number of observable pop2 alt freqs = 4
-mean pop2 alt frq = 0.5
-
-allele frequency correlation between callable sites = PearsonRResult(statistic=np.float64(0.5259237061407777), pvalue=np.float64(0.47407629385922245))
-```
-
-Two of the four polymorphic sites show polarized allele frequencies, but, surprisingly, there is higher diversity in the dogs at these sites: intermediate allele frequencies indicate that both alleles are present at moderate frequencies, but the sites are fixed in wolves. Also, the mean alternative allele frequencies across sites is very similar. I would not place much stock in the correlation test as there are only 4 sites on which it is calculated. It should be noted that while these allele frequencies don't square with a signal of positive selection on the dog lineages, there are only 4 sites, but of thousands of sites in this genomic region that were assayed in the original study. Furthermore, the original study focused on ancient breeds (Basenji and Dingo) that were evolutionarily closer to early dogs that diverged from wolves .... and, the modern breeds in the reference pane and our admixed pets are a hodgepodge of various artificial selection regimes.
-
+* The modern dog breeds in the reference panel, as well as probably most of the class dogs, are the product of diverse forms of artificial selection on traits, and at functional loci might have elevated diversity consistent with heterogeneous selection across breeds
+* The sampled breeds do not reflect ancestral diversity in ancient dog breeds--such as the Dingo and Basenji used in my 2014 paper--that are evolutionarily closer to early dogs as they diverged from wolves
+* not all the canine HD chip data are reported, and given Embark's mission of figuring out the breed composition of submmitted samples, may focus on SNPs with higher diversity in dogs ... not those with no little diversity in dogs but higher diversity in wolves.
 
 If you want to explore variation after class, you can look for variation at SNPs in genes found in a table I extracted from the dog genome annotation for the same (CanFam3.1) version of the genome. If you are interested, for example, in the gene MITF, which is a pigmentation gene you would do this 
 
