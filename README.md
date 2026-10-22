@@ -100,7 +100,11 @@ Why do we need to do this? Becaue in order to merge the individual sample PLINK 
 If you change the names of your dog's files to be your dog's name (i.e. change the values for the first two columns of the fam file to Huxley) you would create a merge file like this:
 
 ```bash
-for i in huxley ida;do awk -v val="$i" 'BEGIN { print val".bed "val".bim "val".fam" }' >> merge_list.txt
+rm merge_list.txt
+for i in huxley ida;do \
+    awk -v val="$i" 'BEGIN { print val".bed "val".bim "val".fam" }' \
+    >> merge_list.txt; \
+done
 ```
 
 merge_list.txt would look like this:
