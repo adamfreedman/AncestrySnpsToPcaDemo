@@ -88,7 +88,10 @@ For a number of downstream tasks, it is convenient to covert the genotypes to bi
 ```bash
 samples=()
 for f in *.tped; do samples+=("${f%.tped}");done
-for i in $samples; do plink  --tped ${i}.tped --tfam ${i}.tfam --make-bed --chr-set 42  --allow-extra-chr --out ${i};done
+for i in $samples; do
+    plink  --tped ${i}.tped --tfam ${i}.tfam \ 
+    --make-bed --chr-set 42  --allow-extra-chr --out ${i}; \
+done
 ```
 
 ### Create a list of dog sample binary PLINK files 
