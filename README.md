@@ -7,16 +7,12 @@ This repository demonsrates how one would analyze the data yourself, if say you 
 
 * Merge your dog's (or all of the class') Embark data with Embark-provided reference samples
   * these include wolf, coyote, and select dog breed samples (and a few of the class dogs)
-* Merge these with a panel of publicly available wolf, dog and jackal samples
 * Convert to variant call format (vcf)
 * Do some basic analyses
   * PCA on genootypes to see where samples fall relative to one another
+  * Look at allele frequency differences bewteen dogs and wolves near genes of interest
   * Calculate heterozygosity to compare dog and wild canid samples
     * Which do you expect to have higher heterozygosity?
-
-## The publicly available data
-In this particular demo, we will merge the dog data with genotypes obtained from whole-genome sequencing for 6 canids: dingo, Bajenji, Chinese wolf, Croatian wolf, Israeli wolf, and Golden Jackal. These data were first published alongside a study investigating the timing and geographic origins of dogs [Freedman et al. 2014, *PLoS Genetics*](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1004016).
-All samples were sequenced to relatively high coverage (approximately 20x each), meaning that, on average, enough sequencing reads overlap any particular site in the genome such that heterozygous sites can be genotyped with high confidence. 
 
 ## Data analysis: your dogs
 ### PLINK files: 1st steps
