@@ -568,4 +568,17 @@ reference_coyote_2	61427	49690.6	78252	0.41092	0.21501
 
 **NOTE**: if you use one of the region files you generated with *bcftools* using the command line a bit above this, because it outputs uncompressed vcf format, you need to change the `--gzvcf` switch in the *vcftools* command line to `--vcf`. 
 
+To plot the observed heterozygosity (`H_OBS`) of each sample, grouped as dog, wolf, or coyote, run this from the `data/` directory:
+
+```bash
+Rscript ../scripts/PlotObservedHeterozygosity.R allsites_obshet_table.txt allsites_obshet_by_group.png
+```
+
+This script handles all the unpleasantness of the weird labels that made the initial PCA plot ugly. It looks like ...
+
+<img src="img/allsites_obshet_by_group.png pcaplot_final.png" width="100%" height="100%"/>
+
+Remember what I said about the patterns of allele frequency diversity near LHFPL3. Does the Embark data represent an unbiased sample for comparing wolves and dogs?
+
+
 
