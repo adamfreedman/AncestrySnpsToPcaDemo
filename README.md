@@ -576,7 +576,7 @@ Rscript ../scripts/PlotObservedHeterozygosity.R allsites_obshet_table.txt allsit
 
 This script handles all the unpleasantness of the weird labels that made the initial PCA plot ugly. It looks like ...
 
-<img src="img/allsites_obshet_by_group.png pcaplot_final.png" width="100%" height="100%"/>
+<img src="img/allsites_obshet_by_group.png" width="100%" height="100%"/>
 
 Remember what I said about the patterns of allele frequency diversity near LHFPL3. Does the Embark data represent an unbiased sample for comparing wolves and dogs?
 
