@@ -416,6 +416,7 @@ Which looks much better!:
 
 <img src="img/pcaplot_final.png" width="100%" height="100%"/>
 
+**NOTE:** If you want your dog to be labelled in the PCA, then add your dog's sample id to the list of those being printed in the R block above.
 
 ### Extracting allele frequencies at interesting genes
 A useful way of examining genetic variation between two populations is to look at their respective allele frequencies in genic regions thought to be resposible for phenotypic trait differences. In cases where positive selection has acted on a portion of the genome in a particular descendant lineage, we would expect to see a couple of things:
