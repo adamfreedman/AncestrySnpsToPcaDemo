@@ -1,0 +1,31 @@
+name: ancestry-snps-pca
+
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  # Command-line genomics tools
+  - plink
+  - bcftools
+  - samtools
+  - htslib
+  - vcftools
+
+  # Shell/text-processing utilities used in README commands
+  - bash
+  - gawk
+  - coreutils
+
+  # Python scripts
+  - python=3.11
+  - numpy
+  - scipy
+
+  # R and PCA/plotting packages
+  - r-base
+  - r-vcfr
+  - r-adegenet
+  - r-tidyverse
+  - r-ggrepel

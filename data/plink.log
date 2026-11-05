@@ -1,0 +1,14 @@
+PLINK v1.9.0-b.8 64-bit (22 Oct 2024)
+Options in effect:
+  --allow-extra-chr
+  --bfile fixed_refpanel_plusHuxleyandIda
+  --chr-set 42  
+
+Hostname: FAS-GJ3WCJFTQ4
+Working directory: /Users/adamfreedman/workspace/AncestrySnpsToPcaDemo/data
+Start time: Tue Oct  6 16:48:46 2026
+
+Error: Invalid --chr-set parameter ' '.
+For more information, try "plink --help <flag name>" or "plink --help | more".
+
+End time: Tue Oct  6 16:48:46 2026

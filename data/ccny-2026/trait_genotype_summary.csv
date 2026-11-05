@@ -1,0 +1,100 @@
+trait_gene_id,genotype,meaning,gene_interactions
+ALX4_Blue_Eyes_Linkage,N/N,Less likely to have blue eyes,No other trait loci known to alter expression of this genotype
+ALX4_Blue_Eyes_Linkage,N/Dup,Likely to have blue eyes or partial blue eyes,No other trait loci known to alter expression of this genotype
+ALX4_Blue_Eyes_Linkage,Dup/Dup,Likely to have blue eyes or partial blue eyes,No other trait loci known to alter expression of this genotype
+ASIP_A_locus,AyAy,Fawn Sable coat color pattern,Genotypes at CBD103_K_locus and MC1R_E_locus may alter expression of this genotype
+ASIP_A_locus,AyAw,Fawn Sable coat color pattern,Genotypes at CBD103_K_locus and MC1R_E_locus may alter expression of this genotype
+ASIP_A_locus,AyAt,Fawn Sable coat color pattern,Genotypes at CBD103_K_locus and MC1R_E_locus may alter expression of this genotype
+ASIP_A_locus,Aya,Fawn Sable coat color pattern,Genotypes at CBD103_K_locus and MC1R_E_locus may alter expression of this genotype
+ASIP_A_locus,AwAw,Agouti (Wolf Sable) coat color pattern,Genotypes at CBD103_K_locus and MC1R_E_locus may alter expression of this genotype
+ASIP_A_locus,AwAt,Agouti (Wolf Sable) coat color pattern,Genotypes at CBD103_K_locus and MC1R_E_locus may alter expression of this genotype
+ASIP_A_locus,Awa,Agouti (Wolf Sable) coat color pattern,Genotypes at CBD103_K_locus and MC1R_E_locus may alter expression of this genotype
+ASIP_A_locus,AtAt,Black/Brown and tan coat color pattern,Genotypes at CBD103_K_locus and MC1R_E_locus may alter expression of this genotype
+ASIP_A_locus,Ata,Black/Brown and tan coat color pattern,Genotypes at CBD103_K_locus and MC1R_E_locus may alter expression of this genotype
+ASIP_A_locus,aa,Recessive Black/Brown,Genotypes at CBD103_K_locus and MC1R_E_locus may alter expression of this genotype
+CBD103_K_locus,KBKB,More likely to have a mostly solid black or brown fur coat,Genotypes at MC1R_E_locus may alter expression of this genotype
+CBD103_K_locus,KBKy,More likely to have a mostly solid black or brown fur coat,Genotypes at MC1R_E_locus may alter expression of this genotype
+CBD103_K_locus,KyKy,More likely to have patterned fur,Genotypes at MC1R_E_locus may alter expression of this genotype
+EPAS1_altitude,GG,Normal altitude tolerance,No other trait loci known to alter expression of this genotype
+EPAS1_altitude,GA,Increased altitude tolerance,No other trait loci known to alter expression of this genotype
+EPAS1_altitude,AA,Increased altitude tolerance,No other trait loci known to alter expression of this genotype
+FGF5_longcoat,ShSh,Likely short or mid-length coat,No other trait loci known to alter expression of this genotype
+FGF5_longcoat,ShLh,Likely short or mid-length coat,No other trait loci known to alter expression of this genotype
+FGF5_longcoat,LhLh,Likely long coat,No other trait loci known to alter expression of this genotype
+GHR_size1,AA,Smaller,No other trait loci known to alter expression of this genotype
+GHR_size1,GA,Intermediate,No other trait loci known to alter expression of this genotype
+GHR_size1,GG,Larger,No other trait loci known to alter expression of this genotype
+GHR_size2,TT,Smaller,No other trait loci known to alter expression of this genotype
+GHR_size2,CT,Intermediate,No other trait loci known to alter expression of this genotype
+GHR_size2,CC,Larger,No other trait loci known to alter expression of this genotype
+IGF1_size,II,Smaller,No other trait loci known to alter expression of this genotype
+IGF1_size,NI,Intermediate,No other trait loci known to alter expression of this genotype
+IGF1_size,NN,Larger,No other trait loci known to alter expression of this genotype
+IGFR1_toy,AA,Smaller,No other trait loci known to alter expression of this genotype
+IGFR1_toy,GA,Intermediate,No other trait loci known to alter expression of this genotype
+IGFR1_toy,GG,Larger,No other trait loci known to alter expression of this genotype
+Intensity_red_pigment,High,Any red/yellow-pigmented fur likely apricot or red,"Genotypes at ASIP_A_locus, CBD103_K_locus and MC1R_E_locus may alter expression of this genotype"
+Intensity_red_pigment,Intermediate,Any red/yellow-pigmented fur likely yellow or tan,"Genotypes at ASIP_A_locus, CBD103_K_locus and MC1R_E_locus may alter expression of this genotype"
+Intensity_red_pigment,Low,Any red/yellow-pigmented fur likely white or cream,"Genotypes at ASIP_A_locus, CBD103_K_locus and MC1R_E_locus may alter expression of this genotype"
+KRT71_CurlyCoat,CC,Likely straight coat,Genotypes at FGF5_longcoat and RSPO2_moustache may alter expression of this genotype
+KRT71_CurlyCoat,CT,Likely straight coat; may be wavy if long,Genotypes at FGF5_longcoat and RSPO2_moustache may alter expression of this genotype
+KRT71_CurlyCoat,TT,Coat likely curly or wavy if long,Genotypes at FGF5_longcoat and RSPO2_moustache may alter expression of this genotype
+LMBR1_Claw,CC,Unlikely to have hind dew claws,No other trait loci known to alter expression of this genotype
+LMBR1_Claw,CT,Likely to have hind dew claws,No other trait loci known to alter expression of this genotype
+LMBR1_Claw,TT,Likely to have hind dew claws,No other trait loci known to alter expression of this genotype
+MC1R_E_locus,EEa,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EEag*,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EEh,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EgEa,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EgEa*,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EgEh*,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,Ehe,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EhEh,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,Eme or Eae,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EmEa,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EmEa*,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EmEga*,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EmEgh*,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EmEh,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EmEh*,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EmEm,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EmEg,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EmE,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,Eme,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EgEg,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EgE,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,Ege,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EE,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,Ee,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,ee,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EmEg*,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,Eme or Ee,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,Eme or Ege,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,Eae,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EaEa,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MC1R_E_locus,EaEh*,Not interpreted on its own; E-locus genotype acts mainly by modifying expression of other coat color loci,"Not altered by other trait loci; this genotype may alter expression of ASIP_A_locus, CBD103_K_locus, Intensity_red_pigment, MLPH_D_locus, PMEL_Merle, RALY_Saddle_trait_gene and TYRP1_B_locus"
+MITF_white_spotting,spsp,Likely to have large white areas in coat,No other trait loci known to alter expression of this genotype
+MITF_white_spotting,Ssp,Likely to have some white areas in coat,No other trait loci known to alter expression of this genotype
+MITF_white_spotting,SS,Likely to have little to no white in coat,No other trait loci known to alter expression of this genotype
+MLPH_D_locus,DD,Dark (non-dilute) fur and skin,Genotypes at MC1R_E_locus may alter expression of this genotype
+MLPH_D_locus,Dd,Dark (non-dilute) fur and skin,Genotypes at MC1R_E_locus may alter expression of this genotype
+MLPH_D_locus,dd,Fur and skin have lighter (dilute) coloration,Genotypes at MC1R_E_locus may alter expression of this genotype
+PMEL_Merle,mm,Unlikely to have merle pattern,Genotypes at MC1R_E_locus may alter expression of this genotype
+PMEL_Merle,M*m,May express merle,Genotypes at MC1R_E_locus may alter expression of this genotype
+PMEL_Merle,M*M*,May express merle or double merle,Genotypes at MC1R_E_locus may alter expression of this genotype
+RALY_Saddle_trait_gene,NN,Likely saddle tan patterned,"Genotypes at ASIP_A_locus, CBD103_K_locus and MC1R_E_locus may alter expression of this genotype"
+RALY_Saddle_trait_gene,NI,Likely saddle tan patterned,"Genotypes at ASIP_A_locus, CBD103_K_locus and MC1R_E_locus may alter expression of this genotype"
+RALY_Saddle_trait_gene,II,Not saddle tan patterned,"Genotypes at ASIP_A_locus, CBD103_K_locus and MC1R_E_locus may alter expression of this genotype"
+RSPO2_moustache,FF,"Likely furnished (mustache, beard, and/or eyebrows)",No other trait loci known to alter expression of this genotype
+RSPO2_moustache,FI,"Likely furnished (mustache, beard, and/or eyebrows)",No other trait loci known to alter expression of this genotype
+RSPO2_moustache,II,"Likely unfurnished (no mustache, beard, and/or eyebrows)",No other trait loci known to alter expression of this genotype
+STC2_size,AA,Smaller,No other trait loci known to alter expression of this genotype
+STC2_size,TA,Intermediate,No other trait loci known to alter expression of this genotype
+STC2_size,TT,Larger,No other trait loci known to alter expression of this genotype
+TYRP1_B_locus,BB,Black or gray fur and skin,Genotypes at MC1R_E_locus may alter expression of this genotype
+TYRP1_B_locus,Bb,Black or gray fur and skin,Genotypes at MC1R_E_locus may alter expression of this genotype
+TYRP1_B_locus,bb,Brown fur and skin,Genotypes at MC1R_E_locus may alter expression of this genotype
+TYRP1_B_locus,Bb or bb,Black or grey or brown fur and skin,Genotypes at MC1R_E_locus may alter expression of this genotype
+USH2A_Roan,rr,Likely no impact on coat pattern,Genotypes at MITF_white_spotting may alter expression of this genotype
+USH2A_Roan,Rr,Likely roan patterned,Genotypes at MITF_white_spotting may alter expression of this genotype
+USH2A_Roan,RR,Likely roan patterned,Genotypes at MITF_white_spotting may alter expression of this genotype

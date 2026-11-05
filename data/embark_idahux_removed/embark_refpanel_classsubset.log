@@ -1,0 +1,28 @@
+PLINK v1.9.0-b.8 64-bit (22 Oct 2024)
+Options in effect:
+  --allow-extra-chr
+  --bfile ccny-genomics_public_markers_filtered
+  --chr-set 42
+  --make-bed
+  --out embark_refpanel_classsubset
+  --remove samples_to_remove.txt
+
+Hostname: FAS-GJ3WCJFTQ4
+Working directory: /Users/adamfreedman/workspace/AncestrySnpsToPcaDemo/data/embark_idahux_removed
+Start time: Tue Sep 29 16:55:26 2026
+
+Random number seed: 1790715326
+18432 MB RAM detected; reserving 9216 MB for main workspace.
+82080 variants loaded from .bim file.
+37 samples (21 males, 16 females) loaded from .fam.
+--remove: 35 samples remaining.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 35 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate in remaining samples is 0.998055.
+82080 variants and 35 samples pass filters and QC.
+Note: No phenotypes present.
+--make-bed to embark_refpanel_classsubset.bed + embark_refpanel_classsubset.bim
++ embark_refpanel_classsubset.fam ... done.
+
+End time: Tue Sep 29 16:55:26 2026
